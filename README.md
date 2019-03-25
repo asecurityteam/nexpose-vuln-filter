@@ -1,11 +1,13 @@
-<a id="markdown-Nexpose Vulnerability Filter" name="Nexpose Vulnerability Filter"></a>
-# Nexpose Vulnerability Filter - Nexpose Vulnerability Filter uses filters based on CVSS score and regular expressions to add or remove vulnerabilities from an asset for further processing by the pipeline.
+<a id="markdown-Nexpose Vulnerability Filter" name="nexpose-vuln-filter"></a>
+# Nexpose Vulnerability Filter
+
+Nexpose Vulnerability Filter uses filters based on CVSS score and regular expressions to add or remove vulnerabilities from an asset for further processing by the pipeline.
 
 <https://github.com/asecurityteam/nexpose-vuln-filter>
 
 <!-- TOC -->
 
-- [Nexpose Vulnerability Filter - Nexpose Vulnerability Filter uses filters based on CVSS score and regular expressions to add or remove vulnerabilities from an asset for further processing by the pipeline.](#Nexpose Vulnerability Filter)
+- [Nexpose Vulnerability Filter](#nexpose-vuln-filter)
     - [Overview](#overview)
     - [Quick Start](#quick-start)
     - [Configuration](#configuration)
