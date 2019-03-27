@@ -28,7 +28,7 @@ type Asset struct {
 	// The identifier of the asset.
 	ID int64 `json:"id,omitempty"`
 	// Unique identifiers found on the asset, such as hardware or operating system identifiers.
-	IDs []UniqueId `json:"ids,omitempty"`
+	IDs []UniqueID `json:"ids,omitempty"`
 	// The primary IPv4 or IPv6 address of the asset.
 	IP string `json:"ip,omitempty"`
 	// Hypermedia links to corresponding or related resources.
@@ -100,10 +100,10 @@ type HostName struct {
 	Source string `json:"source,omitempty"`
 }
 
-// UniqueId represents unique identifiers associated with an asset
-type UniqueId struct {
+// UniqueID represents unique identifiers associated with an asset
+type UniqueID struct {
 	// The unique identifier.
-	Id string `json:"id"`
+	ID string `json:"id"`
 	// The source of the unique identifier.
 	Source string `json:"source,omitempty"`
 }
