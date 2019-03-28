@@ -2,12 +2,11 @@ package v1
 
 import (
 	"context"
-	"fmt"
-
-	"github.com/asecurityteam/nexpose-vuln-filter/pkg/filter"
 
 	"github.com/asecurityteam/nexpose-vuln-filter/pkg/domain"
 	"github.com/asecurityteam/nexpose-vuln-filter/pkg/domain/nexpose"
+	"github.com/asecurityteam/nexpose-vuln-filter/pkg/filter"
+	"github.com/asecurityteam/nexpose-vuln-filter/pkg/logs"
 )
 
 // NexposeAssetVulnerabilities is a Nexpose asset response payload appended
@@ -48,15 +47,29 @@ func (h NexposeVulnFilter) FilterVulnerabilities(ctx context.Context, assetVulne
 	for _, vuln := range assetVulnerabilities.Vulnerabilities {
 		if vuln.Vulnerability.Cvss.V2.Score > minCvssV2Score {
 			filteredVulnerabilities = append(filteredVulnerabilities, vuln)
-			logger.Info(fmt.Sprintf("Vuln %s accepted based on CVSS V2 score for asset %d", vuln.Vulnerability.ID, assetVulnerabilities.ID))
+			logger.Info(logs.VulnerabilityFiltered{
+				Action:  logs.VulnRetained,
+				Method:  logs.CvssV2Score,
+				VulnID:  vuln.Vulnerability.ID,
+				AssetID: assetVulnerabilities.ID,
+			})
 			stater.Count("event.nexposevulnerability.filter.accepted", 1)
 		} else if vulnIDRegexp.MatchString(vuln.Vulnerability.ID) {
 			filteredVulnerabilities = append(filteredVulnerabilities, vuln)
-			logger.Info(fmt.Sprintf("Vuln %s accepted based on title for asset %d", vuln.Vulnerability.ID, assetVulnerabilities.ID))
+			logger.Info(logs.VulnerabilityFiltered{
+				Action:  logs.VulnRetained,
+				Method:  logs.VulnID,
+				VulnID:  vuln.Vulnerability.ID,
+				AssetID: assetVulnerabilities.ID,
+			})
 			stater.Count("event.nexposevulnerability.filter.accepted", 1)
 		} else {
+			logger.Info(logs.VulnerabilityFiltered{
+				Action:  logs.VulnDiscarded,
+				VulnID:  vuln.Vulnerability.ID,
+				AssetID: assetVulnerabilities.ID,
+			})
 			stater.Count("event.nexposevulnerability.filter.discarded", 1)
-			logger.Info(fmt.Sprintf("Vuln %s discarded for asset %d", vuln.Vulnerability.ID, assetVulnerabilities.ID))
 		}
 	}
 	return filteredVulnerabilities
