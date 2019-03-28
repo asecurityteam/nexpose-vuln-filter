@@ -28,13 +28,16 @@ type NexposeVulnFilter struct {
 
 // Handle filters an asset's vulnerabilities based on predefined criteria and returns
 // the payload without vulnerabilities that meet the requirements
-func (h NexposeVulnFilter) Handle(ctx context.Context, input *NexposeAssetVulnerabilities) (*NexposeAssetVulnerabilities, error) {
-	input.Vulnerabilities = h.FilterVulnerabilities(ctx, input)
-	return input, nil
+func (h NexposeVulnFilter) Handle(ctx context.Context, input NexposeAssetVulnerabilities) (NexposeAssetVulnerabilities, error) {
+	output := NexposeAssetVulnerabilities{
+		Asset:           input.Asset,
+		Vulnerabilities: h.FilterVulnerabilities(ctx, input),
+	}
+	return output, nil
 }
 
 // FilterVulnerabilities returns a filtered list of vulnerabilities.
-func (h NexposeVulnFilter) FilterVulnerabilities(ctx context.Context, assetVulnerabilities *NexposeAssetVulnerabilities) []nexpose.AssetVulnerabilityDetails {
+func (h NexposeVulnFilter) FilterVulnerabilities(ctx context.Context, assetVulnerabilities NexposeAssetVulnerabilities) []nexpose.AssetVulnerabilityDetails {
 	logger := h.LogFn(ctx)
 	stater := h.StatFn(ctx)
 

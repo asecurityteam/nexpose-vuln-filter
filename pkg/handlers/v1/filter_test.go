@@ -20,7 +20,7 @@ func TestHandle(t *testing.T) {
 		StatFn:              runhttp.StatFromContext,
 	}
 
-	input := &NexposeAssetVulnerabilities{
+	input := NexposeAssetVulnerabilities{
 		Vulnerabilities: []nexpose.AssetVulnerabilityDetails{
 			nexpose.AssetVulnerabilityDetails{
 				VulnerabilityFinding: nexpose.VulnerabilityFinding{
@@ -227,7 +227,7 @@ func TestVulnFilterer(t *testing.T) {
 				StatFn:              runhttp.StatFromContext,
 			}
 
-			assetVulnerabilities := &NexposeAssetVulnerabilities{
+			assetVulnerabilities := NexposeAssetVulnerabilities{
 				Vulnerabilities: test.vulnerabilities,
 			}
 
