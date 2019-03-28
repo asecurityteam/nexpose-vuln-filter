@@ -21,7 +21,7 @@ type NexposeAssetVulnerabilities struct {
 // and a list of vulnerabilities and returns a payload of the same shape
 // omitting vulnerabilities that do not meet the filter criteria
 type NexposeVulnFilter struct {
-	VulnerabilityFilter filter.VulnerabilityFilterer
+	VulnerabilityFilter *filter.VulnerabilityFilterer
 	LogFn               domain.LogFn
 	StatFn              domain.StatFn
 }

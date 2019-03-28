@@ -46,7 +46,7 @@ info:
     name: Apache 2.0
     url: 'https://www.apache.org/licenses/LICENSE-2.0.html'
 paths:
-  /2015-03-31/functions/{functionName}/invocations:
+  /filter:
     post:
       description: Accepts a Nexpose asset payload with Nexpose vulnerabilities and returns the asset payload with a filtered list of vulnerabilities based on configuration.
       requestBody:

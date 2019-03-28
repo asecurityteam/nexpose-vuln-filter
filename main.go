@@ -29,6 +29,7 @@ func main() {
 	handler := v1.NexposeVulnFilter{
 		VulnerabilityFilter: vulnFilterer,
 		LogFn:               runhttp.LoggerFromContext,
+		StatFn:              runhttp.StatFromContext,
 	}
 	handlers := map[string]serverfulldomain.Handler{
 		"filter": lambda.NewHandler(handler.Handle),
