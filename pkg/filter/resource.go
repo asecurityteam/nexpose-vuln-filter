@@ -3,8 +3,6 @@ package filter
 import (
 	"context"
 	"regexp"
-
-	"github.com/asecurityteam/nexpose-vuln-filter/pkg/domain/nexpose"
 )
 
 // VulnerabilityFiltererConfig defines the configuration options for a VulnerabilityFilterer.
@@ -43,15 +41,4 @@ func (v *VulnerabilityFiltererComponent) New(_ context.Context, c *Vulnerability
 type VulnerabilityFilterer struct {
 	CVSSV2MinimumScore float64
 	VulnIDRegexp       *regexp.Regexp
-}
-
-// FilterVulnerabilities returns a filtered list of vulnerabilities.
-func (f *VulnerabilityFilterer) FilterVulnerabilities(vulns []nexpose.AssetVulnerabilityDetails) []nexpose.AssetVulnerabilityDetails {
-	filteredVulnerabilities := make([]nexpose.AssetVulnerabilityDetails, 0)
-	for _, vuln := range vulns {
-		if vuln.Vulnerability.Cvss.V2.Score > f.CVSSV2MinimumScore || f.VulnIDRegexp.MatchString(vuln.Vulnerability.ID) {
-			filteredVulnerabilities = append(filteredVulnerabilities, vuln)
-		}
-	}
-	return filteredVulnerabilities
 }
