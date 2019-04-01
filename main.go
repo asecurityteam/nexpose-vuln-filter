@@ -4,6 +4,9 @@ import (
 	"context"
 	"os"
 
+	"github.com/asecurityteam/nexpose-vuln-filter/pkg/filter"
+	v1 "github.com/asecurityteam/nexpose-vuln-filter/pkg/handlers/v1"
+	"github.com/asecurityteam/runhttp"
 	serverfull "github.com/asecurityteam/serverfull/pkg"
 	serverfulldomain "github.com/asecurityteam/serverfull/pkg/domain"
 	"github.com/asecurityteam/settings"
@@ -11,17 +14,27 @@ import (
 )
 
 func main() {
-	ctx := context.Background()
-	var _ lambda.Handler = nil // Placeholder to keep lambda imported. Delete after adding to the map.
-	handlers := map[string]serverfulldomain.Handler{
-		// TODO: Register lambda functions here in the form of
-		// "name_or_arn": lambda.NewHandler(myHandler.Handle)
-	}
-
 	source, err := settings.NewEnvSource(os.Environ())
 	if err != nil {
 		panic(err.Error())
 	}
+	ctx := context.Background()
+	vulnFilterComponent := &filter.VulnerabilityFilterComponent{}
+	vulnFilterCriteria := new(filter.VulnerabilityFilterCriteria)
+	err = settings.NewComponent(ctx, source, vulnFilterComponent, vulnFilterCriteria)
+	if err != nil {
+		panic(err.Error())
+	}
+
+	handler := v1.NexposeVulnFilter{
+		VulnerabilityFilterCriteria: vulnFilterCriteria,
+		LogFn:                       runhttp.LoggerFromContext,
+		StatFn:                      runhttp.StatFromContext,
+	}
+	handlers := map[string]serverfulldomain.Handler{
+		"filter": lambda.NewHandler(handler.Handle),
+	}
+
 	rt, err := serverfull.NewStatic(ctx, source, handlers)
 	if err != nil {
 		panic(err.Error())

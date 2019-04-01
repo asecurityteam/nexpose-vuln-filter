@@ -46,31 +46,21 @@ info:
     name: Apache 2.0
     url: 'https://www.apache.org/licenses/LICENSE-2.0.html'
 paths:
-  /healthcheck:
-    get:
-      description: "Liveness check."
-      responses:
-        "200":
-          description: "Success."
-      x-transportd:
-        backend: app
-  /{name}:
-    get:
-      description: An API Call.
-      parameters:
-        - name: "name"
-          in: "path"
-          description: "Name of person to greet."
-          required: true
-          schema:
-            type: "string"
+  /filter:
+    post:
+      description: Accepts a Nexpose asset payload with Nexpose vulnerabilities and returns the asset payload with a filtered list of vulnerabilities based on configuration.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssetWithVulnerabilities'
       responses:
         "200":
           description: "Success"
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Greeting'
+                $ref: '#/components/schemas/AssetWithVulnerabilities'
       x-transportd:
         backend: app
         enabled:
@@ -80,16 +70,1534 @@ paths:
           - "responsevalidation"
           - "lambda"
         lambda:
-          arn: "name_or_arn"
+          arn: "filter"
           async: false
-          request: '{}'
+          request: '#! json .Request.Body !#'
           success: '{"status": 200, "bodyPassthrough": true}'
           error: '{"status": 500, "bodyPassthrough": true}'
 components:
   schemas:
-    Greeting:
+    AssetWithVulnerabilities:
       type: object
       properties:
-        greeting:
+        addresses:
+          type: array
+          description: All addresses discovered on the asset.
+          items:
+            $ref: '#/components/schemas/Address'
+        assessedForPolicies:
+          type: boolean
+          example: false
+          description: Whether the asset has been assessed for policies at least once.
+          readOnly: true
+        assessedForVulnerabilities:
+          type: boolean
+          example: true
+          description: Whether the asset has been assessed for vulnerabilities at least once.
+          readOnly: true
+        configurations:
+          type: array
+          description: Configuration key-values pairs enumerated on the asset.
+          items:
+            $ref: '#/components/schemas/Configuration'
+        databases:
+          type: array
+          description: The databases enumerated on the asset.
+          items:
+            $ref: '#/components/schemas/Database'
+        files:
+          type: array
+          description: The files discovered with searching on the asset.
+          items:
+            $ref: '#/components/schemas/File'
+        history:
+          type: array
+          description: The history of changes to the asset over time.
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/AssetHistory'
+        hostName:
           type: string
-          description: The personal greeting.
+          example: corporate-workstation-1102DC.acme.com
+          description: The primary host name (local or FQDN) of the asset.
+        hostNames:
+          type: array
+          description: All host names or aliases discovered on the asset.
+          items:
+            $ref: '#/components/schemas/HostName'
+        id:
+          type: integer
+          format: int64
+          example: 282
+          description: The identifier of the asset.
+        ids:
+          type: array
+          description: >-
+            Unique identifiers found on the asset, such as hardware or operating
+            system identifiers.
+          items:
+            $ref: '#/components/schemas/UniqueId'
+        ip:
+          type: string
+          example: 182.34.74.202
+          description: The primary IPv4 or IPv6 address of the asset.
+        links:
+          type: array
+          description: Hypermedia links to corresponding or related resources.
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/Link'
+        mac:
+          type: string
+          example: 'AB:12:CD:34:EF:56'
+          description: >-
+            The primary Media Access Control (MAC) address of the asset. The
+            format is six groups of two hexadecimal digits separated by colons.
+        os:
+          type: string
+          example: Microsoft Windows Server 2008 Enterprise Edition SP1
+          description: The full description of the operating system of the asset.
+        osFingerprint:
+          $ref: '#/components/schemas/OperatingSystem'
+        rawRiskScore:
+          type: number
+          format: double
+          example: 31214.3
+          description: The base risk score of the asset.
+          readOnly: true
+        riskScore:
+          type: number
+          format: double
+          example: 37457.16
+          description: The risk score (with criticality adjustments) of the asset.
+          readOnly: true
+        services:
+          type: array
+          description: The services discovered on the asset.
+          items:
+            $ref: '#/components/schemas/Service'
+        software:
+          type: array
+          description: The software discovered on the asset.
+          items:
+            $ref: '#/components/schemas/Software'
+        type:
+          type: string
+          example: ''
+          description: The type of asset.
+          enum:
+            - unknown
+            - guest
+            - hypervisor
+            - physical
+            - mobile
+        userGroups:
+          type: array
+          description: The group accounts enumerated on the asset.
+          items:
+            $ref: '#/components/schemas/GroupAccount'
+        users:
+          type: array
+          description: The user accounts enumerated on the asset.
+          items:
+            $ref: '#/components/schemas/UserAccount'
+        vulnerabilities:
+          $ref: '#/components/schemas/AssetVulnerabilities'
+        assetVulnerabilityDetails:
+          type: array
+          description: List of vulnerabilities found on the asset.
+          items:
+            $ref: '#/components/schemas/VulnerabilityFinding'
+    Address:
+      type: object
+      properties:
+        ip:
+          type: string
+          example: 123.245.34.235
+          description: The IPv4 or IPv6 address.
+        mac:
+          type: string
+          example: '12:34:56:78:90:AB'
+          description: >-
+            The Media Access Control (MAC) address. The format is six groups of
+            two hexadecimal digits separated by colons.
+      description: ''
+    AssetHistory:
+      type: object
+      properties:
+        date:
+          type: string
+          example: '2018-04-09T06:23:49Z'
+          description: The date the asset information was collected or changed.
+        description:
+          type: string
+          example: ''
+          description: Additional information describing the change.
+        scanId:
+          type: integer
+          format: int64
+          example: 12
+          description: >-
+            If a scan-oriented change, the identifier of the corresponding scan
+            the asset was scanned in.
+        type:
+          type: string
+          example: SCAN
+          description: >-
+            The type of change. May be one of:
+
+            | Type                                | Source of
+            Data                                              |
+
+            | ----------------------------------- |
+            ----------------------------------------------------------- |
+
+            | `ASSET-IMPORT`, `EXTERNAL-IMPORT`   | External source such as the
+            API                             |
+
+            | `EXTERNAL-IMPORT-APPSPIDER`         | Rapid7 InsightAppSec
+            (previously known as AppSpider)        |
+
+            | `SCAN`                              | Scan engine
+            scan                                            |
+
+            | `ACTIVE-SYNC`                       |
+            ActiveSync                                                  |
+
+            | `SCAN-LOG-IMPORT`                   | Manual import of a scan
+            log                                 |
+
+            | `VULNERABILITY_EXCEPTION_APPLIED`   | Vulnerability exception
+            applied                             |
+
+            | `VULNERABILITY_EXCEPTION_UNAPPLIED` | Vulnerability exception
+            unapplied                           |
+        user:
+          type: string
+          example: ''
+          description: >-
+            If a vulnerability exception change, the login name of the user that
+            performed the operation.
+        version:
+          type: integer
+          format: int32
+          example: 8
+          description: >-
+            The version number of the change (a chronological incrementing number
+            starting from 1).
+        vulnerabilityExceptionId:
+          type: integer
+          format: int32
+          example: ''
+          description: >-
+            If a vulnerability exception change, the identifier of the
+            vulnerability exception that caused the change.
+      description: ''
+    AssessmentResult:
+      type: object
+      required:
+        - status
+      properties:
+        checkId:
+          type: string
+          example: ssh-openssh-x11uselocalhost-x11-forwarding-session-hijack
+          description: The identifier of the vulnerability check.
+        exceptions:
+          type: array
+          description: >-
+            If the result is vulnerable with exceptions applied, the identifier(s)
+            of the exceptions actively applied to the result.
+          items:
+            type: integer
+            format: int32
+        key:
+          type: string
+          example: ''
+          description: >-
+            An additional discriminating key used to uniquely identify between
+            multiple instances of results on the same finding.
+        links:
+          type: array
+          description: Hypermedia links to corresponding or related resources.
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/Link'
+        port:
+          type: integer
+          format: int32
+          example: 22
+          description: The port of the service the result was discovered on.
+        proof:
+          type: string
+          example: <p><p>OpenBSD OpenSSH 4.3 on Linux</p></p>
+          description: >-
+            The proof explaining why the result was found vulnerable. The proof
+            may container embedded HTML formatting markup.
+        protocol:
+          type: string
+          example: tcp
+          description: The protocol of the service the result was discovered on.
+          enum:
+            - ip
+            - icmp
+            - igmp
+            - ggp
+            - tcp
+            - pup
+            - udp
+            - idp
+            - esp
+            - nd
+            - raw
+        status:
+          type: string
+          example: vulnerable-version
+          description: The status of the vulnerability check result.
+          enum:
+            - unknown
+            - not-vulnerable
+            - vulnerable
+            - vulnerable-version
+            - vulnerable-potential
+            - vulnerable-with-exception-applied
+            - vulnerable-version-with-exception-applied
+            - vulnerable-potential-with-exception-applied
+      description: ''
+    AssetVulnerabilities:
+      type: object
+      properties:
+        critical:
+          type: integer
+          format: int64
+          example: 16
+          description: The number of critical vulnerabilities.
+          readOnly: true
+        exploits:
+          type: integer
+          format: int64
+          example: 4
+          description: >-
+            The number of distinct exploits that can exploit any of the
+            vulnerabilities on the asset.
+          readOnly: true
+        malwareKits:
+          type: integer
+          format: int64
+          example: 0
+          description: >-
+            The number of distinct malware kits that vulnerabilities on the asset
+            are susceptible to.
+          readOnly: true
+        moderate:
+          type: integer
+          format: int64
+          example: 3
+          description: The number of moderate vulnerabilities.
+          readOnly: true
+        severe:
+          type: integer
+          format: int64
+          example: 76
+          description: The number of severe vulnerabilities.
+          readOnly: true
+        total:
+          type: integer
+          format: int64
+          example: 95
+          description: The total number of vulnerabilities.
+          readOnly: true
+      description: Summary information for vulnerabilities on the asset.
+    Configuration:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          example: <name>
+          description: The name of the configuration value.
+        value:
+          type: string
+          example: <value>
+          description: The configuration value.
+      description: ''
+    ContentDescription:
+      type: object
+      properties:
+        html:
+          type: string
+          example: >-
+            A remote code execution vulnerability exists in the way that the
+            scripting engine handles objects in memory in Microsoft Edge. ...
+          description: Hypertext Markup Language (HTML) representation of the content.
+        text:
+          type: string
+          example: >-
+            <p>A remote code execution vulnerability exists in the way that the
+            scripting engine handles objects in memory in Microsoft Edge. ...</p>
+          description: Textual representation of the content.
+      description: The description of the vulnerability.
+    Database:
+      type: object
+      required:
+        - name
+      properties:
+        description:
+          type: string
+          example: Microsoft SQL Server
+          description: The description of the database instance.
+        id:
+          type: integer
+          format: int32
+          example: 13
+          description: The identifier of the database.
+        name:
+          type: string
+          example: MSSQL
+          description: The name of the database instance.
+      description: ''
+    File:
+      type: object
+      required:
+        - name
+        - type
+      properties:
+        attributes:
+          type: array
+          description: Attributes detected on the file.
+          items:
+            $ref: '#/components/schemas/Configuration'
+        name:
+          type: string
+          example: ADMIN$
+          description: The name of the file.
+        size:
+          type: integer
+          format: int64
+          example: -1
+          description: >-
+            The size of the regular file (in bytes). If the file is a directory,
+            no value is returned.
+        type:
+          type: string
+          example: directory
+          description: The type of the file.
+          enum:
+            - file
+            - directory
+      description: ''
+    GroupAccount:
+      type: object
+      required:
+        - name
+      properties:
+        id:
+          type: integer
+          format: int32
+          example: 972
+          description: The identifier of the user group.
+        name:
+          type: string
+          example: Administrators
+          description: The name of the user group.
+      description: ''
+    HostName:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          example: corporate-workstation-1102DC.acme.com
+          description: The host name (local or FQDN).
+        source:
+          type: string
+          example: DNS
+          description: >-
+            The source used to detect the host name. `user` indicates the host
+            name source is user-supplied (e.g. in a site target definition).
+          enum:
+            - user
+            - dns
+            - netbios
+            - dce
+            - epsec
+            - ldap
+            - other
+      description: ''
+    Link:
+      type: object
+      properties:
+        href:
+          type: string
+          example: 'https://hostname:3780/api/3/...'
+          description: >-
+            A hypertext reference, which is either a URI (see <a target="_blank"
+            href="https://tools.ietf.org/html/rfc3986">RFC 3986</a>) or URI
+            template (see <a target="_blank"
+            href="https://tools.ietf.org/html/rfc6570">RFC 6570</a>).
+        rel:
+          type: string
+          example: self
+          description: >-
+            The link relation type. This value is one from the <a target="_blank"
+            href="https://tools.ietf.org/html/rfc5988#section-6.2">Link Relation
+            Type Registry</a> or is the type of resource being linked to.
+      description: ''
+    OperatingSystem:
+      type: object
+      properties:
+        architecture:
+          type: string
+          example: x86
+          description: The architecture of the operating system.
+        configurations:
+          type: array
+          description: Configuration key-values pairs enumerated on the operating system.
+          items:
+            $ref: '#/components/schemas/Configuration'
+        cpe:
+          $ref: '#/components/schemas/OperatingSystemCpe'
+        description:
+          type: string
+          example: Microsoft Windows Server 2008 Enterprise Edition SP1
+          description: >-
+            The description of the operating system (containing vendor, family,
+            product, version and architecture in a single string).
+        family:
+          type: string
+          example: Windows
+          description: The family of the operating system.
+        id:
+          type: integer
+          format: int64
+          example: 35
+          description: The identifier of the operating system.
+        product:
+          type: string
+          example: Windows Server 2008 Enterprise Edition
+          description: The name of the operating system.
+        systemName:
+          type: string
+          example: Microsoft Windows
+          description: >-
+            A combination of vendor and family (with redundancies removed),
+            suitable for grouping.
+        type:
+          type: string
+          example: Workstation
+          description: The type of operating system.
+        vendor:
+          type: string
+          example: Microsoft
+          description: The vendor of the operating system.
+        version:
+          type: string
+          example: SP1
+          description: The version of the operating system.
+      description: 'The details of the operating system of the asset.'
+    OperatingSystemCpe:
+      type: object
+      required:
+        - part
+      properties:
+        edition:
+          type: string
+          example: enterprise
+          description: 'Edition-related terms applied by the vendor to the product. '
+        language:
+          type: string
+          example: ''
+          description: >-
+            Defines the language supported in the user interface of the product
+            being described. The format is of the language tag adheres to <a
+            target="_blank"
+            href="https://tools.ietf.org/html/rfc5646">RFC5646</a>.
+        other:
+          type: string
+          example: ''
+          description: >-
+            Captures any other general descriptive or identifying information
+            which is vendor- or product-specific and which does not logically fit
+            in any other attribute value.
+        part:
+          type: string
+          example: o
+          description: >-
+            A single letter code that designates the particular platform part that
+            is being identified.
+          enum:
+            - o
+            - a
+            - h
+        product:
+          type: string
+          example: windows_server_2008
+          description: the most common and recognizable title or name of the product.
+        swEdition:
+          type: string
+          example: ''
+          description: >-
+            Characterizes how the product is tailored to a particular market or
+            class of end users.
+        targetHW:
+          type: string
+          example: ''
+          description: >-
+            Characterize the instruction set architecture on which the product
+            operates.
+        targetSW:
+          type: string
+          example: ''
+          description: >-
+            Characterize the software computing environment within which the
+            product operates.
+        update:
+          type: string
+          example: sp1
+          description: >-
+            Vendor-specific alphanumeric strings characterizing the particular
+            update, service pack, or point release of the product.
+        v2.2:
+          type: string
+          example: 'cpe:/o:microsoft:windows_server_2008:-:sp1:enterprise'
+          description: >-
+            The full CPE string in the <a target="_blank"
+            href="https://cpe.mitre.org/files/cpe-specification_2.2.pdf">CPE
+            2.2</a> format.
+        v2.3:
+          type: string
+          example: 'cpe:2.3:o:microsoft:windows_server_2008:-:sp1:enterprise:*:*:*:*:*'
+          description: >-
+            The full CPE string in the <a target="_blank"
+            href="http://nvlpubs.nist.gov/nistpubs/Legacy/IR/nistir7695.pdf">CPE
+            2.3</a> format.
+        vendor:
+          type: string
+          example: microsoft
+          description: The person or organization that manufactured or created the product.
+        version:
+          type: string
+          example: '-'
+          description: >-
+            Vendor-specific alphanumeric strings characterizing the particular
+            release version of the product.
+      description: The Common Platform Enumeration (CPE) of the operating system.
+    PCI:
+      type: object
+      properties:
+        adjustedCVSSScore:
+          type: integer
+          format: int32
+          example: 4
+          description: >-
+            The CVSS score of the vulnerability, adjusted for PCI rules and
+            exceptions, on a scale of 0-10.
+        adjustedSeverityScore:
+          type: integer
+          format: int32
+          example: 3
+          description: >-
+            The severity score of the vulnerability, adjusted for PCI rules and
+            exceptions, on a scale of 0-10.
+        fail:
+          type: boolean
+          example: true
+          description: >-
+            Whether if present on a host this vulnerability would cause a PCI
+            failure. `true` if "status" is `"Fail"`, `false` otherwise.
+        specialNotes:
+          type: string
+          example: ''
+          description: >-
+            Any special notes or remarks about the vulnerability that pertain to
+            PCI compliance.
+        status:
+          type: string
+          example: Fail
+          description: >-
+            The PCI compliance status of the vulnerability. One of: `"Pass"`,
+            `"Fail"`.
+      description: >-
+        Details the <a target="_blank"
+        href="https://www.pcisecuritystandards.org/">Payment Card Industry
+        (PCI)</a> details of the vulnerability.
+    Service:
+      type: object
+      required:
+        - port
+        - protocol
+      properties:
+        configurations:
+          type: array
+          description: Configuration key-values pairs enumerated on the service.
+          items:
+            $ref: '#/components/schemas/Configuration'
+        databases:
+          type: array
+          description: The databases enumerated on the service.
+          items:
+            $ref: '#/components/schemas/Database'
+        family:
+          type: string
+          example: ''
+          description: The family of the service.
+        links:
+          type: array
+          description: Hypermedia links to corresponding or related resources.
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/Link'
+        name:
+          type: string
+          example: CIFS Name Service
+          description: The name of the service.
+        port:
+          type: integer
+          format: int32
+          example: 139
+          description: The port of the service.
+        product:
+          type: string
+          example: Samba
+          description: The product running the service.
+        protocol:
+          type: string
+          example: tcp
+          description: The protocol of the service.
+          enum:
+            - ip
+            - icmp
+            - igmp
+            - ggp
+            - tcp
+            - pup
+            - udp
+            - idp
+            - esp
+            - nd
+            - raw
+        userGroups:
+          type: array
+          description: The group accounts enumerated on the service.
+          items:
+            $ref: '#/components/schemas/GroupAccount'
+        users:
+          type: array
+          description: The user accounts enumerated on the service.
+          items:
+            $ref: '#/components/schemas/UserAccount'
+        vendor:
+          type: string
+          example: ''
+          description: The vendor of the service.
+        version:
+          type: string
+          example: 3.5.11
+          description: The version of the service.
+        webApplications:
+          type: array
+          description: The web applications found on the service.
+          items:
+            $ref: '#/components/schemas/WebApplication'
+      description: ''
+    Software:
+      type: object
+      properties:
+        configurations:
+          type: array
+          description: '${software.attributes.description}'
+          items:
+            $ref: '#/components/schemas/Configuration'
+        cpe:
+          $ref: '#/components/schemas/SoftwareCpe'
+        description:
+          type: string
+          example: Microsoft Outlook 2013 15.0.4867.1000
+          description: The description of the software.
+        family:
+          type: string
+          example: Office 2013
+          description: The family of the software.
+        id:
+          type: integer
+          format: int64
+        product:
+          type: string
+          example: Outlook 2013
+          description: The product of the software.
+        type:
+          type: string
+          example: Productivity
+          description: The version of the software.
+        vendor:
+          type: string
+          example: Microsoft
+          description: The vendor of the software.
+        version:
+          type: string
+          example: 15.0.4867.1000
+          description: The version of the software.
+      description: ''
+    SoftwareCpe:
+      type: object
+      required:
+        - part
+      properties:
+        edition:
+          type: string
+          example: enterprise
+          description: 'Edition-related terms applied by the vendor to the product. '
+        language:
+          type: string
+          example: ''
+          description: >-
+            Defines the language supported in the user interface of the product
+            being described. The format is of the language tag adheres to <a
+            target="_blank"
+            href="https://tools.ietf.org/html/rfc5646">RFC5646</a>.
+        other:
+          type: string
+          example: ''
+          description: >-
+            Captures any other general descriptive or identifying information
+            which is vendor- or product-specific and which does not logically fit
+            in any other attribute value.
+        part:
+          type: string
+          example: o
+          description: >-
+            A single letter code that designates the particular platform part that
+            is being identified.
+          enum:
+            - o
+            - a
+            - h
+        product:
+          type: string
+          example: windows_server_2008
+          description: the most common and recognizable title or name of the product.
+        swEdition:
+          type: string
+          example: ''
+          description: >-
+            Characterizes how the product is tailored to a particular market or
+            class of end users.
+        targetHW:
+          type: string
+          example: ''
+          description: >-
+            Characterize the instruction set architecture on which the product
+            operates.
+        targetSW:
+          type: string
+          example: ''
+          description: >-
+            Characterize the software computing environment within which the
+            product operates.
+        update:
+          type: string
+          example: sp1
+          description: >-
+            Vendor-specific alphanumeric strings characterizing the particular
+            update, service pack, or point release of the product.
+        v2.2:
+          type: string
+          example: 'cpe:/o:microsoft:windows_server_2008:-:sp1:enterprise'
+          description: >-
+            The full CPE string in the <a target="_blank"
+            href="https://cpe.mitre.org/files/cpe-specification_2.2.pdf">CPE
+            2.2</a> format.
+        v2.3:
+          type: string
+          example: 'cpe:2.3:o:microsoft:windows_server_2008:-:sp1:enterprise:*:*:*:*:*'
+          description: >-
+            The full CPE string in the <a target="_blank"
+            href="http://nvlpubs.nist.gov/nistpubs/Legacy/IR/nistir7695.pdf">CPE
+            2.3</a> format.
+        vendor:
+          type: string
+          example: microsoft
+          description: The person or organization that manufactured or created the product.
+        version:
+          type: string
+          example: '-'
+          description: >-
+            Vendor-specific alphanumeric strings characterizing the particular
+            release version of the product.
+      description: 'The Common Platform Enumeration (CPE) of the software.'
+    UniqueId:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          type: string
+          example: c56b2c59-4e9b-4b89-85e2-13f8146eb071
+          description: The unique identifier.
+        source:
+          type: string
+          example: WQL
+          description: The source of the unique identifier.
+      description: ''
+    UserAccount:
+      type: object
+      required:
+        - name
+      properties:
+        fullName:
+          type: string
+          example: 'Smith, John'
+          description: The full name of the user account.
+        id:
+          type: integer
+          format: int32
+          example: 8952
+          description: The identifier of the user account.
+        name:
+          type: string
+          example: john_smith
+          description: The name of the user account.
+      description: ''
+    VulnerabilityCvss:
+      type: object
+      properties:
+        links:
+          type: array
+          description: Hypermedia links to corresponding or related resources.
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/Link'
+        v2:
+          $ref: '#/components/schemas/VulnerabilityCvssV2'
+        v3:
+          $ref: '#/components/schemas/VulnerabilityCvssV3'
+      description: The CVSS vector(s) for the vulnerability.
+    VulnerabilityCvssV2:
+      type: object
+      properties:
+        accessComplexity:
+          type: string
+          example: M
+          description: >-
+            Access Complexity (AC) component which measures the complexity of the
+            attack required to exploit the vulnerability once an attacker has
+            gained access to the target system.
+
+            | Access Complexity       |
+            Description
+            |
+
+            | ----------------------- |
+            ------------------------------------------------------------------------
+            |
+
+            | High (`"H"`)            | Specialized access conditions
+            exist.                                     |
+
+            | Medium (`"M"`)          | The access conditions are somewhat
+            specialized.                          |
+
+            | Low (`"L"`)             | Specialized access conditions or
+            extenuating circumstances do not exist. |
+          enum:
+            - L
+            - M
+            - H
+        accessVector:
+          type: string
+          example: L
+          description: >
+            Access Vector (Av) component which reflects how the vulnerability is
+            exploited.
+
+            | Access Vector              | Description |
+
+            | -------------------------- | ----------- |
+
+            | Local (`"L"`)              | A vulnerability exploitable with only
+            local access requires the attacker to have either physical access to
+            the vulnerable system or a local (shell) account. |
+
+            | Adjacent Network (`"A"`)   | A vulnerability exploitable with
+            adjacent network access requires the attacker to have access to either
+            the broadcast or collision domain of the vulnerable software. |
+
+            | Network (`"N"`)            | A vulnerability exploitable with
+            network access means the vulnerable software is bound to the network
+            stack and the attacker does not require local network access or local
+            access. Such a vulnerability is often termed "remotely exploitable".
+            |
+          enum:
+            - L
+            - A
+            - 'N'
+        authentication:
+          type: string
+          example: 'N'
+          description: >-
+            Authentication (Au) component which measures the number of times an
+            attacker must authenticate to a target in order to exploit a
+            vulnerability.
+
+            | Authentication       | Description |
+
+            | -------------------- | ----------- |
+
+            | Multiple (`"M"`)     | Exploiting the vulnerability requires that
+            the attacker authenticate two or more times, even if the same
+            credentials are used each time. |
+
+            | Single (`"S"`)       | The vulnerability requires an attacker to be
+            logged into the
+            system.
+            |
+
+            | None (`"N"`)         | Authentication is not required to exploit the
+            vulnerability.
+            |
+          enum:
+            - 'N'
+            - S
+            - M
+        availabilityImpact:
+          type: string
+          example: P
+          description: >-
+            Availability Impact (A) component which measures the impact to
+            availability of a successfully exploited vulnerability.
+
+            | Availability Impact        | Description  |
+
+            | -------------------------- | ------------ |
+
+            | None (`"N"`)               | There is no impact to the availability
+            of the system. |
+
+            | Partial (`"P"`)            | There is reduced performance or
+            interruptions in resource availability. |
+
+            | Complete (`"C"`)           | There is a total shutdown of the
+            affected resource. The attacker can render the resource completely
+            unavailable. |
+          enum:
+            - 'N'
+            - P
+            - C
+        confidentialityImpact:
+          type: string
+          example: P
+          description: >-
+            Confidentiality Impact (C) component which measures the impact on
+            confidentiality of a successfully exploited vulnerability.
+
+            | Confidentiality Impact     | Description  |
+
+            | -------------------------- | ------------ |
+
+            | None (`"N"`)               | There is no impact to the
+            confidentiality of the system. |
+
+            | Partial (`"P"`)            | There is considerable informational
+            disclosure. Access to some system files is possible, but the attacker
+            does not have control over what is obtained, or the scope of the loss
+            is constrained. |
+
+            | Complete (`"C"`)           | There is total information disclosure,
+            resulting in all system files being revealed. The attacker is able to
+            read all of the system's data (memory, files, etc.) |
+          enum:
+            - 'N'
+            - P
+            - C
+        exploitScore:
+          type: number
+          format: double
+          example: 3.3926
+          description: The CVSS exploit score.
+        impactScore:
+          type: number
+          format: double
+          example: 6.443
+          description: The CVSS impact score.
+        integrityImpact:
+          type: string
+          example: P
+          description: >-
+            Integrity Impact (I) component measures the impact to integrity of a
+            successfully exploited vulnerability.
+
+            | Integrity Impact           | Description  |
+
+            | -------------------------- | ------------ |
+
+            | None (`"N"`)               | There is no impact to the integrity of
+            the system. |
+
+            | Partial (`"P"`)            | Modification of some system files or
+            information is possible, but the attacker does not have control over
+            what can be modified, or the scope of what the attacker can affect is
+            limited. |
+
+            | Complete (`"C"`)           | There is a total compromise of system
+            integrity. There is a complete loss of system protection, resulting in
+            the entire system being compromised. The attacker is able to modify
+            any files on the target system. |
+          enum:
+            - 'N'
+            - P
+            - C
+        score:
+          type: number
+          format: double
+          example: 4.4
+          description: 'The CVSS score, which ranges from 0-10.'
+        vector:
+          type: string
+          example: 'AV:L/AC:M/Au:N/C:P/I:P/A:P'
+          description: >-
+            The <a target="_blank" href="https://www.first.org/cvss/v2/guide">CVSS
+            v2</a> vector.
+      description: >-
+        The Common Vulnerability Scoring System (<a
+        href="https://www.first.org/cvss/v2/guide">CVSS v2</a>) information
+        for the vulnerability.
+    VulnerabilityCvssV3:
+      type: object
+      properties:
+        attackComplexity:
+          type: string
+          example: H
+          description: >-
+            Access Complexity (AC) component with measures the conditions beyond
+            the attacker's control that must exist in order to exploit the
+            vulnerability.
+
+            | Access Complexity      |
+            Description
+            |
+
+            | ---------------------- |
+            ------------------------------------------------------------------------
+            |
+
+            | Low (`"L"`)            | Specialized access conditions or
+            extenuating circumstances do not exist. |
+
+            | High (`"H"`)           | A successful attack depends on conditions
+            beyond the attacker's control. |
+          enum:
+            - L
+            - H
+        attackVector:
+          type: string
+          example: 'N'
+          description: >
+            Attack Vector (AV) component which measures context by which
+            vulnerability exploitation is possible.
+
+            | Access Vector          |
+            Description
+            |
+
+            | ---------------------- |
+            ------------------------------------------------------------------------
+            |
+
+            | Local (`"L"`)          | A vulnerability exploitable with only local
+            access requires the attacker to have either physical access to the
+            vulnerable system or a local (shell) account. |
+
+            | Adjacent (`"A"`)       | A vulnerability exploitable with adjacent
+            network access requires the attacker to have access to either the
+            broadcast or collision domain of the vulnerable software. |
+
+            | Network (`"N"`)        | A vulnerability exploitable with network
+            access means the vulnerable software is bound to the network stack and
+            the attacker does not require local network access or local access.
+            Such a vulnerability is often termed "remotely exploitable". |
+          enum:
+            - 'N'
+            - A
+            - L
+            - P
+        availabilityImpact:
+          type: string
+          example: H
+          description: >-
+            Availability Impact (A) measures the impact to the availability of the
+            impacted component resulting from a successfully exploited
+            vulnerability.
+
+            | Availability Impact        | Description  |
+
+            | -------------------------- | ------------ |
+
+            | High (`"H"`)               | There is total loss of availability,
+            resulting in the attacker being able to fully deny access to resources
+            in the impacted component; this loss is either sustained (while the
+            attacker continues to deliver the attack) or persistent (the condition
+            persists even after the attack has completed). |
+
+            | Low (`"L"`)                | There is reduced performance or
+            interruptions in resource availability. Even if repeated exploitation
+            of the vulnerability is possible, the attacker does not have the
+            ability to completely deny service to legitimate users. |
+
+            | None (`"N"`)               | There is no impact to availability
+            within the impacted component. |
+          enum:
+            - 'N'
+            - L
+            - H
+        confidentialityImpact:
+          type: string
+          example: H
+          description: >-
+            Confidentiality Impact (C) component which measures the impact on
+            confidentiality of a successfully exploited vulnerability.
+
+            | Confidentiality Impact     | Description  |
+
+            | -------------------------- | ------------ |
+
+            | High (`"H"`)               | There is total loss of confidentiality,
+            resulting in all resources within the impacted component being
+            divulged to the attacker. |
+
+            | Low (`"L"`)                | There is some loss of confidentiality.
+            Access to some restricted information is obtained, but the attacker
+            does not have control over what information is obtained, or the amount
+            or kind of loss is constrained. |
+
+            | None (`"N"`)               | There is no loss of confidentiality
+            within the impacted component. |
+          enum:
+            - 'N'
+            - L
+            - H
+        exploitScore:
+          type: number
+          format: double
+          example: 1.6201
+          description: The CVSS impact score.
+        impactScore:
+          type: number
+          format: double
+          example: 5.8731
+          description: The CVSS exploit score.
+        integrityImpact:
+          type: string
+          example: H
+          description: >-
+            Integrity Impact (I) measures the impact to integrity of a
+            successfully exploited vulnerability. Integrity refers to the
+            trustworthiness and veracity of information.
+
+            | Integrity Impact    | Description  |
+
+            | ------------------- | ------------ |
+
+            | High (`"H"`)        | There is a total loss of integrity, or a
+            complete loss of protection. |
+
+            | Low (`"L"`)         | Modification of data is possible, but the
+            attacker does not have control over the consequence of a modification,
+            or the amount of modification is constrained. |
+
+            | None (`"N"`)        | There is no loss of integrity within the
+            impacted component. |
+          enum:
+            - 'N'
+            - L
+            - H
+        privilegeRequired:
+          type: string
+          example: 'N'
+          description: >-
+            Privileges Required (PR) measures the level of privileges an attacker
+            must possess before successfully exploiting the vulnerability.
+
+            | Privileges Required (PR)     |
+            Description
+            |
+
+            | ---------------------------- |
+            ------------------------------------------------------------------------
+            |
+
+            | None (`"N"`)                 | The attacker is unauthorized prior to
+            attack, and therefore does not require any access to settings or files
+            to carry out an attack. |
+
+            | Low (`"L"`)                  | The attacker is authorized with (i.e.
+            requires) privileges that provide basic user capabilities that could
+            normally affect only settings and files owned by a user. |
+
+            | High (`"H"`)                 | The attacker is authorized with (i.e.
+            requires) privileges that provide significant (e.g. administrative)
+            control over the vulnerable component that could affect component-wide
+            settings and files. |
+          enum:
+            - 'N'
+            - L
+            - H
+        scope:
+          type: string
+          example: U
+          description: >-
+            Scope (S) measures the collection of privileges defined by a computing
+            authority (e.g. an application, an operating system, or a sandbox
+            environment) when granting access to computing resources (e.g. files,
+            CPU, memory, etc). These privileges are assigned based on some method
+            of identification and authorization.
+
+            | Scope (S)            |
+            Description
+            |
+
+            | -------------------- |
+            ------------------------------------------------------------------------
+            |
+
+            | Unchanged (`"U"`)    | An exploited vulnerability can only affect
+            resources managed by the same authority. In this case the vulnerable
+            component and the impacted component are the same. |
+
+            | Changed (`"C"`)      | An exploited vulnerability can affect
+            resources beyond the authorization privileges intended by the
+            vulnerable component. In this case the vulnerable component and the
+            impacted component are different. |
+          enum:
+            - U
+            - C
+        score:
+          type: number
+          format: double
+          example: 7.5
+          description: 'The CVSS score, which ranges from 0-10.'
+        userInteraction:
+          type: string
+          example: R
+          description: >-
+            User Interaction (UI) measures the requirement for a user, other than
+            the attacker, to participate in the successful compromise of the
+            vulnerable component.
+
+            | User Interaction (UI)        |
+            Description
+            |
+
+            | ---------------------------- |
+            -------------------------------------------------------------------------
+            |
+
+            | None (`"N"`)                 | The vulnerable system can be
+            exploited without interaction from any user. |
+
+            | Required (`"R"`)             | Successful exploitation of this
+            vulnerability requires a user to take some action before the
+            vulnerability can be exploited. |
+          enum:
+            - 'N'
+            - R
+        vector:
+          type: string
+          example: 'CVSS:3.0/AV:N/AC:H/PR:N/UI:R/S:U/C:H/I:H/A:H'
+          description: >-
+            The <a target="_blank"
+            href="https://www.first.org/cvss/specification-document">CVSS v3</a>
+            vector.
+      description: >-
+        The Common Vulnerability Scoring System (<a target="_blank"
+        href="https://www.first.org/cvss/specification-document">CVSS v3</a>)
+        information for the vulnerability.
+    VulnerabilityFinding:
+      type: object
+      required:
+        - id
+        - instances
+        - status
+      properties:
+        id:
+          type: string
+          example: ssh-openssh-x11uselocalhost-x11-forwarding-session-hijack
+          description: The identifier of the vulnerability.
+        instances:
+          type: integer
+          format: int32
+          example: 1
+          description: >-
+            The number of vulnerable occurrences of the vulnerability. This does
+            not include `invulnerable` instances.
+        links:
+          type: array
+          description: Hypermedia links to corresponding or related resources.
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/Link'
+        results:
+          type: array
+          description: >-
+            The vulnerability check results for the finding. Multiple instances
+            may be present if one or more checks fired, or a check has multiple
+            independent results.
+          items:
+            $ref: '#/components/schemas/AssessmentResult'
+        status:
+          type: string
+          example: vulnerable
+          description: The status of the finding.
+          enum:
+            - vulnerable
+            - invulnerable
+            - no-results
+        vulnerability:
+          $ref: '#/components/schemas/Vulnerability'
+      description: ''
+    Vulnerability:
+      type: object
+      properties:
+        added:
+          type: string
+          example: '2017-10-10'
+          description: >-
+            The date the vulnerability coverage was added. The format is an ISO
+            8601 date, `YYYY-MM-DD`.
+        categories:
+          type: array
+          description: All vulnerability categories assigned to this vulnerability.
+          items:
+            type: string
+        cves:
+          type: array
+          description: >-
+            All <a target="_blank" href="https://cve.mitre.org/">CVE</a>s assigned
+            to this vulnerability.
+          items:
+            type: string
+        cvss:
+          $ref: '#/components/schemas/VulnerabilityCvss'
+        denialOfService:
+          type: boolean
+          example: false
+          description: Whether the vulnerability can lead to Denial of Service (DoS).
+        description:
+          $ref: '#/components/schemas/ContentDescription'
+        exploits:
+          type: integer
+          format: int32
+          example: ''
+          description: The exploits that can be used to exploit a vulnerability.
+        id:
+          type: string
+          example: msft-cve-2017-11804
+          description: The identifier of the vulnerability.
+        links:
+          type: array
+          description: Hypermedia links to corresponding or related resources.
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/Link'
+        malwareKits:
+          type: integer
+          format: int32
+          example: ''
+          description: >-
+            The malware kits that are known to be used to exploit the
+            vulnerability.
+        modified:
+          type: string
+          example: '2017-10-10'
+          description: >-
+            The last date the vulnerability was modified. The format is an ISO
+            8601 date, `YYYY-MM-DD`.
+        pci:
+          $ref: '#/components/schemas/PCI'
+        published:
+          type: string
+          example: '2017-10-10'
+          description: >-
+            The date the vulnerability was first published or announced. The
+            format is an ISO 8601 date, `YYYY-MM-DD`.
+        riskScore:
+          type: number
+          format: double
+          example: 123.69
+          description: >-
+            The risk score of the vulnerability, rounded to a maximum of to digits
+            of precision. If using the default Rapid7 Real Risk™ model, this value
+            ranges from 0-1000.
+        severity:
+          type: string
+          example: Severe
+          description: >-
+            The severity of the vulnerability, one of: `"Moderate"`, `"Severe"`,
+            `"Critical"`.
+        severityScore:
+          type: integer
+          format: int32
+          example: 4
+          description: 'The severity score of the vulnerability, on a scale of 0-10.'
+        title:
+          type: string
+          example: >-
+            Microsoft CVE-2017-11804: Scripting Engine Memory Corruption
+            Vulnerability
+          description: The title (summary) of the vulnerability.
+      description: ''
+    WebApplication:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 30712
+          description: The identifier of the web application.
+        pages:
+          type: array
+          description: The pages discovered on the web application.
+          items:
+            $ref: '#/components/schemas/WebPage'
+        root:
+          type: string
+          example: /
+          description: The web root of the web application.
+        virtualHost:
+          type: string
+          example: 102.89.22.253
+          description: The virtual host of the web application.
+      description: ''
+    WebPage:
+      type: object
+      properties:
+        linkType:
+          type: string
+          example: html-ref
+          description: The type of link used to traverse or detect the page.
+          enum:
+            - seed
+            - html-ref
+            - robots
+            - js-string
+            - query-param
+            - pdf
+            - css
+            - implied-dir
+            - rss
+            - redirection
+            - sitemap
+            - backup
+            - vck-rewrite
+            - non-ref-guess
+            - soft-404
+        path:
+          type: string
+          example: /docs/config/index.html
+          description: The path to the page (URI).
+        response:
+          type: integer
+          format: int32
+          example: 200
+          description: The HTTP response code observed with retrieving the page.
+      description: ''
