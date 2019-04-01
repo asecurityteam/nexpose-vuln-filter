@@ -15,9 +15,12 @@ import (
 
 func TestHandle(t *testing.T) {
 	handler := NexposeVulnFilter{
-		VulnerabilityFilter: &filter.VulnerabilityFilterer{CVSSV2MinimumScore: 7.0, VulnIDRegexp: regexp.MustCompile("bad-.*")},
-		LogFn:               runhttp.LoggerFromContext,
-		StatFn:              runhttp.StatFromContext,
+		VulnerabilityFilterCriteria: &filter.VulnerabilityFilterCriteria{
+			CVSSV2MinimumScore: 7.0,
+			VulnIDRegexp:       regexp.MustCompile("bad-.*"),
+		},
+		LogFn:  runhttp.LoggerFromContext,
+		StatFn: runhttp.StatFromContext,
 	}
 
 	input := NexposeAssetVulnerabilities{
@@ -217,14 +220,14 @@ func TestVulnFilterer(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(tt *testing.T) {
-			vulnFilterer := &filter.VulnerabilityFilterer{
+			vulnFilterCriteria := &filter.VulnerabilityFilterCriteria{
 				CVSSV2MinimumScore: test.score,
 				VulnIDRegexp:       regexp.MustCompile(test.regex),
 			}
 			handler := NexposeVulnFilter{
-				VulnerabilityFilter: vulnFilterer,
-				LogFn:               runhttp.LoggerFromContext,
-				StatFn:              runhttp.StatFromContext,
+				VulnerabilityFilterCriteria: vulnFilterCriteria,
+				LogFn:                       runhttp.LoggerFromContext,
+				StatFn:                      runhttp.StatFromContext,
 			}
 
 			assetVulnerabilities := NexposeAssetVulnerabilities{

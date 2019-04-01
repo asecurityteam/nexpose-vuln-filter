@@ -6,13 +6,13 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestVulnFiltererConfigName(t *testing.T) {
-	config := &VulnerabilityFiltererConfig{}
+func TestVulnFilterConfigName(t *testing.T) {
+	config := &VulnerabilityFilterConfig{}
 	require.Equal(t, config.Name(), "VulnerabilityFilter")
 }
 
-func TestVulnFiltererComponentDefaultConfig(t *testing.T) {
-	component := &VulnerabilityFiltererComponent{}
+func TestVulnFilterComponentDefaultConfig(t *testing.T) {
+	component := &VulnerabilityFilterComponent{}
 	config := component.Settings()
 	require.Equal(t, config.CVSSV2MinimumScore, 7.0)
 	require.Equal(t, config.VulnIDRegexMatch, ".*")

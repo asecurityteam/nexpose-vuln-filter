@@ -19,17 +19,17 @@ func main() {
 		panic(err.Error())
 	}
 	ctx := context.Background()
-	vulnFiltererComponent := &filter.VulnerabilityFiltererComponent{}
-	vulnFilterer := new(filter.VulnerabilityFilterer)
-	err = settings.NewComponent(ctx, source, vulnFiltererComponent, vulnFilterer)
+	vulnFilterComponent := &filter.VulnerabilityFilterComponent{}
+	vulnFilterCriteria := new(filter.VulnerabilityFilterCriteria)
+	err = settings.NewComponent(ctx, source, vulnFilterComponent, vulnFilterCriteria)
 	if err != nil {
 		panic(err.Error())
 	}
 
 	handler := v1.NexposeVulnFilter{
-		VulnerabilityFilter: vulnFilterer,
-		LogFn:               runhttp.LoggerFromContext,
-		StatFn:              runhttp.StatFromContext,
+		VulnerabilityFilterCriteria: vulnFilterCriteria,
+		LogFn:                       runhttp.LoggerFromContext,
+		StatFn:                      runhttp.StatFromContext,
 	}
 	handlers := map[string]serverfulldomain.Handler{
 		"filter": lambda.NewHandler(handler.Handle),

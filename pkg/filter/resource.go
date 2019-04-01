@@ -5,40 +5,40 @@ import (
 	"regexp"
 )
 
-// VulnerabilityFiltererConfig defines the configuration options for a VulnerabilityFilterer.
-type VulnerabilityFiltererConfig struct {
+// VulnerabilityFilterConfig defines the configuration options for a VulnerabilityFilterCriteria.
+type VulnerabilityFilterConfig struct {
 	CVSSV2MinimumScore float64 `description:"The minimum CVSS V2 score threshold for vulnerabilties to further process."`
 	VulnIDRegexMatch   string  `description:"A regex to match the vulnerability ID to include for further processing."`
 }
 
 // Name is used by the settings library to replace the default naming convention.
-func (v *VulnerabilityFiltererConfig) Name() string {
+func (v *VulnerabilityFilterConfig) Name() string {
 	return "VulnerabilityFilter"
 }
 
-// VulnerabilityFiltererComponent satisfies the settings library Component API,
+// VulnerabilityFilterComponent satisfies the settings library Component API,
 // and may be used by the settings.NewComponent function.
-type VulnerabilityFiltererComponent struct{}
+type VulnerabilityFilterComponent struct{}
 
-// Settings populates a set of default valid resource types for the VulnerabilityFilterer
+// Settings populates a set of default valid resource types for the VulnerabilityFilterCriteria
 // if none are provided via config.
-func (v *VulnerabilityFiltererComponent) Settings() *VulnerabilityFiltererConfig {
-	return &VulnerabilityFiltererConfig{
+func (v *VulnerabilityFilterComponent) Settings() *VulnerabilityFilterConfig {
+	return &VulnerabilityFilterConfig{
 		CVSSV2MinimumScore: 7.0,
 		VulnIDRegexMatch:   ".*",
 	}
 }
 
-// New constructs a VulnerabilityFilterer from a config.
-func (v *VulnerabilityFiltererComponent) New(_ context.Context, c *VulnerabilityFiltererConfig) (*VulnerabilityFilterer, error) {
-	return &VulnerabilityFilterer{
+// New constructs a VulnerabilityFilterCriteria from a config.
+func (v *VulnerabilityFilterComponent) New(_ context.Context, c *VulnerabilityFilterConfig) (*VulnerabilityFilterCriteria, error) {
+	return &VulnerabilityFilterCriteria{
 		CVSSV2MinimumScore: c.CVSSV2MinimumScore,
 		VulnIDRegexp:       regexp.MustCompile(c.VulnIDRegexMatch),
 	}, nil
 }
 
-// VulnerabilityFilterer filters Vulnerabilities based on various criteria
-type VulnerabilityFilterer struct {
+// VulnerabilityFilterCriteria filters Vulnerabilities based on various criteria
+type VulnerabilityFilterCriteria struct {
 	CVSSV2MinimumScore float64
 	VulnIDRegexp       *regexp.Regexp
 }

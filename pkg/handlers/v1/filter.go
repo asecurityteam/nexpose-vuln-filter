@@ -20,9 +20,9 @@ type NexposeAssetVulnerabilities struct {
 // and a list of vulnerabilities and returns a payload of the same shape
 // omitting vulnerabilities that do not meet the filter criteria
 type NexposeVulnFilter struct {
-	VulnerabilityFilter *filter.VulnerabilityFilterer
-	LogFn               domain.LogFn
-	StatFn              domain.StatFn
+	VulnerabilityFilterCriteria *filter.VulnerabilityFilterCriteria
+	LogFn                       domain.LogFn
+	StatFn                      domain.StatFn
 }
 
 // Handle filters an asset's vulnerabilities based on predefined criteria and returns
@@ -40,8 +40,8 @@ func (h NexposeVulnFilter) FilterVulnerabilities(ctx context.Context, assetVulne
 	logger := h.LogFn(ctx)
 	stater := h.StatFn(ctx)
 
-	minCvssV2Score := h.VulnerabilityFilter.CVSSV2MinimumScore
-	vulnIDRegexp := h.VulnerabilityFilter.VulnIDRegexp
+	minCvssV2Score := h.VulnerabilityFilterCriteria.CVSSV2MinimumScore
+	vulnIDRegexp := h.VulnerabilityFilterCriteria.VulnIDRegexp
 
 	filteredVulnerabilities := make([]nexpose.AssetVulnerabilityDetails, 0)
 	for _, vuln := range assetVulnerabilities.Vulnerabilities {
