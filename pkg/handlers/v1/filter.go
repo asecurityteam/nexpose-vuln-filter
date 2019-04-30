@@ -2,18 +2,38 @@ package v1
 
 import (
 	"context"
+	"time"
 
 	"github.com/asecurityteam/nexpose-vuln-filter/pkg/domain"
-	"github.com/asecurityteam/nexpose-vuln-filter/pkg/domain/nexpose"
 	"github.com/asecurityteam/nexpose-vuln-filter/pkg/filter"
 	"github.com/asecurityteam/nexpose-vuln-filter/pkg/logs"
 )
 
-// NexposeAssetVulnerabilities is a Nexpose asset response payload appended
+// NexposeAssetVulnerabilitiesEvent is a Nexpose asset response payload appended
 // with assetVulnerabilityDetails
-type NexposeAssetVulnerabilities struct {
-	nexpose.Asset
-	Vulnerabilities []nexpose.AssetVulnerabilityDetails `json:"assetVulnerabilityDetails"`
+type NexposeAssetVulnerabilitiesEvent struct {
+	LastScanned     time.Time                   `json:"lastScanned"`
+	Hostname        string                      `json:"hostname"`
+	ID              int64                       `json:"id"`
+	IP              string                      `json:"ip"`
+	Vulnerabilities []AssetVulnerabilityDetails `json:"assetVulnerabilityDetails"`
+}
+
+// AssetVulnerabilityDetails contains the vulnerability information
+type AssetVulnerabilityDetails struct {
+	ID             string             `json:"id"`
+	Results        []AssessmentResult `json:"results"`
+	CvssV2Score    float64            `json:"cvssV2Score"`
+	CvssV2Severity string             `json:"cvssV2Severity"`
+	Description    string             `json:"description"`
+	Title          string             `json:"title"`
+	Solutions      []string           `json:"solutions"`
+}
+
+// AssessmentResult contains port and protocol information for the vulnerability
+type AssessmentResult struct {
+	Port     int    `json:"port"`
+	Protocol string `json:"protocol"`
 }
 
 // NexposeVulnFilter accepts a payload with Nexpose asset information
@@ -27,46 +47,49 @@ type NexposeVulnFilter struct {
 
 // Handle filters an asset's vulnerabilities based on predefined criteria and returns
 // the payload without vulnerabilities that meet the requirements
-func (h NexposeVulnFilter) Handle(ctx context.Context, input NexposeAssetVulnerabilities) (NexposeAssetVulnerabilities, error) {
-	output := NexposeAssetVulnerabilities{
-		Asset:           input.Asset,
+func (h NexposeVulnFilter) Handle(ctx context.Context, input NexposeAssetVulnerabilitiesEvent) (NexposeAssetVulnerabilitiesEvent, error) {
+	output := NexposeAssetVulnerabilitiesEvent{
+		LastScanned:     input.LastScanned,
+		Hostname:        input.Hostname,
+		ID:              input.ID,
+		IP:              input.IP,
 		Vulnerabilities: h.FilterVulnerabilities(ctx, input),
 	}
 	return output, nil
 }
 
 // FilterVulnerabilities returns a filtered list of vulnerabilities.
-func (h NexposeVulnFilter) FilterVulnerabilities(ctx context.Context, assetVulnerabilities NexposeAssetVulnerabilities) []nexpose.AssetVulnerabilityDetails {
+func (h NexposeVulnFilter) FilterVulnerabilities(ctx context.Context, assetVulnerabilities NexposeAssetVulnerabilitiesEvent) []AssetVulnerabilityDetails {
 	logger := h.LogFn(ctx)
 	stater := h.StatFn(ctx)
 
 	minCvssV2Score := h.VulnerabilityFilterCriteria.CVSSV2MinimumScore
 	vulnIDRegexp := h.VulnerabilityFilterCriteria.VulnIDRegexp
 
-	filteredVulnerabilities := make([]nexpose.AssetVulnerabilityDetails, 0)
+	filteredVulnerabilities := make([]AssetVulnerabilityDetails, 0)
 	for _, vuln := range assetVulnerabilities.Vulnerabilities {
-		if vuln.Vulnerability.Cvss.V2.Score > minCvssV2Score {
+		if vuln.CvssV2Score > minCvssV2Score {
 			filteredVulnerabilities = append(filteredVulnerabilities, vuln)
 			logger.Info(logs.VulnerabilityFiltered{
 				Action:  logs.VulnRetained,
 				Method:  logs.CvssV2Score,
-				VulnID:  vuln.Vulnerability.ID,
+				VulnID:  vuln.ID,
 				AssetID: assetVulnerabilities.ID,
 			})
 			stater.Count("event.nexposevulnerability.filter.accepted", 1)
-		} else if vulnIDRegexp.MatchString(vuln.Vulnerability.ID) {
+		} else if vulnIDRegexp.MatchString(vuln.ID) {
 			filteredVulnerabilities = append(filteredVulnerabilities, vuln)
 			logger.Info(logs.VulnerabilityFiltered{
 				Action:  logs.VulnRetained,
 				Method:  logs.VulnID,
-				VulnID:  vuln.Vulnerability.ID,
+				VulnID:  vuln.ID,
 				AssetID: assetVulnerabilities.ID,
 			})
 			stater.Count("event.nexposevulnerability.filter.accepted", 1)
 		} else {
 			logger.Info(logs.VulnerabilityFiltered{
 				Action:  logs.VulnDiscarded,
-				VulnID:  vuln.Vulnerability.ID,
+				VulnID:  vuln.ID,
 				AssetID: assetVulnerabilities.ID,
 			})
 			stater.Count("event.nexposevulnerability.filter.discarded", 1)

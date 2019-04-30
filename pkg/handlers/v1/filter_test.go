@@ -7,7 +7,6 @@ import (
 	"testing"
 
 	"github.com/asecurityteam/logevent"
-	"github.com/asecurityteam/nexpose-vuln-filter/pkg/domain/nexpose"
 	"github.com/asecurityteam/nexpose-vuln-filter/pkg/filter"
 	"github.com/asecurityteam/runhttp"
 	"github.com/stretchr/testify/require"
@@ -23,19 +22,11 @@ func TestHandle(t *testing.T) {
 		StatFn: runhttp.StatFromContext,
 	}
 
-	input := NexposeAssetVulnerabilities{
-		Vulnerabilities: []nexpose.AssetVulnerabilityDetails{
-			nexpose.AssetVulnerabilityDetails{
-				VulnerabilityFinding: nexpose.VulnerabilityFinding{
-					ID: "test",
-				},
-				Vulnerability: nexpose.Vulnerability{
-					Cvss: &nexpose.VulnerabilityCvss{
-						V2: &nexpose.VulnerabilityCvssV2{
-							Score: 6.0,
-						},
-					},
-				},
+	input := NexposeAssetVulnerabilitiesEvent{
+		Vulnerabilities: []AssetVulnerabilityDetails{
+			AssetVulnerabilityDetails{
+				ID:          "test",
+				CvssV2Score: 6.0,
 			},
 		},
 	}
@@ -51,60 +42,42 @@ func TestVulnFilterer(t *testing.T) {
 		name            string
 		score           float64
 		regex           string
-		vulnerabilities []nexpose.AssetVulnerabilityDetails
-		expected        []nexpose.AssetVulnerabilityDetails
+		vulnerabilities []AssetVulnerabilityDetails
+		expected        []AssetVulnerabilityDetails
 	}{
 		{
 			"empty vuln list",
 			7.0,
 			".*",
-			[]nexpose.AssetVulnerabilityDetails{},
-			[]nexpose.AssetVulnerabilityDetails{},
+			[]AssetVulnerabilityDetails{},
+			[]AssetVulnerabilityDetails{},
 		},
 		{
 			"filters out vulnerability that does not meet threshold or title regex",
 			7.0,
 			"bad-vuln-.*",
-			[]nexpose.AssetVulnerabilityDetails{
-				nexpose.AssetVulnerabilityDetails{
-					Vulnerability: nexpose.Vulnerability{
-						ID: "test-vuln-1",
-						Cvss: &nexpose.VulnerabilityCvss{
-							V2: &nexpose.VulnerabilityCvssV2{
-								Score: 6.0,
-							},
-						},
-					},
+			[]AssetVulnerabilityDetails{
+				AssetVulnerabilityDetails{
+					ID:          "test-vuln-1",
+					CvssV2Score: 6.0,
 				},
 			},
-			[]nexpose.AssetVulnerabilityDetails{},
+			[]AssetVulnerabilityDetails{},
 		},
 		{
 			"does not filter out vulnerability that meets threshold but not regex",
 			7.0,
 			"bad-vuln-.*",
-			[]nexpose.AssetVulnerabilityDetails{
-				nexpose.AssetVulnerabilityDetails{
-					Vulnerability: nexpose.Vulnerability{
-						ID: "test-vuln-1",
-						Cvss: &nexpose.VulnerabilityCvss{
-							V2: &nexpose.VulnerabilityCvssV2{
-								Score: 8.0,
-							},
-						},
-					},
+			[]AssetVulnerabilityDetails{
+				AssetVulnerabilityDetails{
+					ID:          "test-vuln-1",
+					CvssV2Score: 8.0,
 				},
 			},
-			[]nexpose.AssetVulnerabilityDetails{
-				nexpose.AssetVulnerabilityDetails{
-					Vulnerability: nexpose.Vulnerability{
-						ID: "test-vuln-1",
-						Cvss: &nexpose.VulnerabilityCvss{
-							V2: &nexpose.VulnerabilityCvssV2{
-								Score: 8.0,
-							},
-						},
-					},
+			[]AssetVulnerabilityDetails{
+				AssetVulnerabilityDetails{
+					ID:          "test-vuln-1",
+					CvssV2Score: 8.0,
 				},
 			},
 		},
@@ -112,28 +85,16 @@ func TestVulnFilterer(t *testing.T) {
 			"does not filter out vulnerability that meets regex but not threshold",
 			7.0,
 			"test-vuln-.*",
-			[]nexpose.AssetVulnerabilityDetails{
-				nexpose.AssetVulnerabilityDetails{
-					Vulnerability: nexpose.Vulnerability{
-						ID: "test-vuln-1",
-						Cvss: &nexpose.VulnerabilityCvss{
-							V2: &nexpose.VulnerabilityCvssV2{
-								Score: 4.0,
-							},
-						},
-					},
+			[]AssetVulnerabilityDetails{
+				AssetVulnerabilityDetails{
+					ID:          "test-vuln-1",
+					CvssV2Score: 4.0,
 				},
 			},
-			[]nexpose.AssetVulnerabilityDetails{
-				nexpose.AssetVulnerabilityDetails{
-					Vulnerability: nexpose.Vulnerability{
-						ID: "test-vuln-1",
-						Cvss: &nexpose.VulnerabilityCvss{
-							V2: &nexpose.VulnerabilityCvssV2{
-								Score: 4.0,
-							},
-						},
-					},
+			[]AssetVulnerabilityDetails{
+				AssetVulnerabilityDetails{
+					ID:          "test-vuln-1",
+					CvssV2Score: 4.0,
 				},
 			},
 		},
@@ -141,78 +102,36 @@ func TestVulnFilterer(t *testing.T) {
 			"filters multiple vulnerabilities correctly",
 			7.0,
 			"bad-vuln-.*",
-			[]nexpose.AssetVulnerabilityDetails{
-				nexpose.AssetVulnerabilityDetails{
-					Vulnerability: nexpose.Vulnerability{
-						ID: "test-vuln-1",
-						Cvss: &nexpose.VulnerabilityCvss{
-							V2: &nexpose.VulnerabilityCvssV2{
-								Score: 5.0,
-							},
-						},
-					},
+			[]AssetVulnerabilityDetails{
+				AssetVulnerabilityDetails{
+					ID:          "test-vuln-1",
+					CvssV2Score: 5.0,
 				},
-				nexpose.AssetVulnerabilityDetails{
-					Vulnerability: nexpose.Vulnerability{
-						ID: "test-vuln-2",
-						Cvss: &nexpose.VulnerabilityCvss{
-							V2: &nexpose.VulnerabilityCvssV2{
-								Score: 8.0,
-							},
-						},
-					},
+				AssetVulnerabilityDetails{
+					ID:          "test-vuln-2",
+					CvssV2Score: 8.0,
 				},
-				nexpose.AssetVulnerabilityDetails{
-					Vulnerability: nexpose.Vulnerability{
-						ID: "test-vuln-3",
-						Cvss: &nexpose.VulnerabilityCvss{
-							V2: &nexpose.VulnerabilityCvssV2{
-								Score: 9.0,
-							},
-						},
-					},
+				AssetVulnerabilityDetails{
+					ID:          "test-vuln-3",
+					CvssV2Score: 9.0,
 				},
-				nexpose.AssetVulnerabilityDetails{
-					Vulnerability: nexpose.Vulnerability{
-						ID: "bad-vuln-4",
-						Cvss: &nexpose.VulnerabilityCvss{
-							V2: &nexpose.VulnerabilityCvssV2{
-								Score: 4.0,
-							},
-						},
-					},
+				AssetVulnerabilityDetails{
+					ID:          "bad-vuln-4",
+					CvssV2Score: 4.0,
 				},
 			},
-			[]nexpose.AssetVulnerabilityDetails{
-				nexpose.AssetVulnerabilityDetails{
-					Vulnerability: nexpose.Vulnerability{
-						ID: "test-vuln-2",
-						Cvss: &nexpose.VulnerabilityCvss{
-							V2: &nexpose.VulnerabilityCvssV2{
-								Score: 8.0,
-							},
-						},
-					},
+			[]AssetVulnerabilityDetails{
+				AssetVulnerabilityDetails{
+					ID:          "test-vuln-2",
+					CvssV2Score: 8.0,
 				},
-				nexpose.AssetVulnerabilityDetails{
-					Vulnerability: nexpose.Vulnerability{
-						ID: "test-vuln-3",
-						Cvss: &nexpose.VulnerabilityCvss{
-							V2: &nexpose.VulnerabilityCvssV2{
-								Score: 9.0,
-							},
-						},
-					},
+				AssetVulnerabilityDetails{
+					ID:          "test-vuln-3",
+					CvssV2Score: 9.0,
 				},
-				nexpose.AssetVulnerabilityDetails{
-					Vulnerability: nexpose.Vulnerability{
-						ID: "bad-vuln-4",
-						Cvss: &nexpose.VulnerabilityCvss{
-							V2: &nexpose.VulnerabilityCvssV2{
-								Score: 4.0,
-							},
-						},
-					},
+				AssetVulnerabilityDetails{
+					ID:          "bad-vuln-4",
+					CvssV2Score: 4.0,
 				},
 			},
 		},
@@ -230,7 +149,7 @@ func TestVulnFilterer(t *testing.T) {
 				StatFn:                      runhttp.StatFromContext,
 			}
 
-			assetVulnerabilities := NexposeAssetVulnerabilities{
+			assetVulnerabilities := NexposeAssetVulnerabilitiesEvent{
 				Vulnerabilities: test.vulnerabilities,
 			}
 
