@@ -21,17 +21,12 @@
   revision = "60620809c4931ced5fde6400c2462236cf3e9c16"
 
 [[projects]]
-  branch = "master"
-  digest = "1:7a3676b59256c1c3c046536e2fbc9fb6be69c213fefdcfd5108a3e71c1d11994"
+  digest = "1:321179397232e455f894e9d717a268be93bb731f75566e24ea3b41ab63ec0127"
   name = "github.com/asecurityteam/serverfull"
-  packages = [
-    "pkg",
-    "pkg/domain",
-    "pkg/handlerfetcher",
-    "pkg/handlers/v1",
-  ]
+  packages = ["."]
   pruneopts = "UT"
-  revision = "81a2983288791c4aad176a3e98d809b925b65d90"
+  revision = "46aa99d9f50faaf4faab8909e4000c70ee133936"
+  version = "v0.1.0"
 
 [[projects]]
   branch = "master"
@@ -88,14 +83,6 @@
   pruneopts = "UT"
   revision = "51d6538a90f86fe93ac480b35f37b2be17fef232"
   version = "v2.2.2"
-
-[[projects]]
-  digest = "1:b60efdeb75d3c0ceed88783ac2495256aba3491a537d0f31401202579fd62a94"
-  name = "github.com/golang/mock"
-  packages = ["gomock"]
-  pruneopts = "UT"
-  revision = "51421b967af1f557f93a59e0057aaf15ca02e29c"
-  version = "v1.2.0"
 
 [[projects]]
   digest = "1:0028cb19b2e4c3112225cd871870f2d9cf49b9b4276531f03438a88e94be86fe"
@@ -169,11 +156,8 @@
   input-imports = [
     "github.com/asecurityteam/logevent",
     "github.com/asecurityteam/runhttp",
-    "github.com/asecurityteam/serverfull/pkg",
-    "github.com/asecurityteam/serverfull/pkg/domain",
+    "github.com/asecurityteam/serverfull",
     "github.com/asecurityteam/settings",
-    "github.com/aws/aws-lambda-go/lambda",
-    "github.com/golang/mock/gomock",
     "github.com/stretchr/testify/require",
   ]
   solver-name = "gps-cdcl"
