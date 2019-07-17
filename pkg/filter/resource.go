@@ -13,12 +13,17 @@ type VulnerabilityFilterConfig struct {
 
 // Name is used by the settings library to replace the default naming convention.
 func (v *VulnerabilityFilterConfig) Name() string {
-	return "VulnerabilityFilter"
+	return "vulnerabilityfilter"
 }
 
 // VulnerabilityFilterComponent satisfies the settings library Component API,
 // and may be used by the settings.NewComponent function.
 type VulnerabilityFilterComponent struct{}
+
+// NewVulnerabilityFilterComponent generates a VulnerabilityFilterComponent.
+func NewVulnerabilityFilterComponent() *VulnerabilityFilterComponent {
+	return &VulnerabilityFilterComponent{}
+}
 
 // Settings populates a set of default valid resource types for the VulnerabilityFilterCriteria
 // if none are provided via config.

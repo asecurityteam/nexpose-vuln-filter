@@ -8,7 +8,7 @@ import (
 
 func TestVulnFilterConfigName(t *testing.T) {
 	config := &VulnerabilityFilterConfig{}
-	require.Equal(t, config.Name(), "VulnerabilityFilter")
+	require.Equal(t, config.Name(), "vulnerabilityfilter")
 }
 
 func TestVulnFilterComponentDefaultConfig(t *testing.T) {
