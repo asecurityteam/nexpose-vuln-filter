@@ -41,21 +41,27 @@ type AssessmentResult struct {
 // omitting vulnerabilities that do not meet the filter criteria
 type NexposeVulnFilter struct {
 	VulnerabilityFilterCriteria *filter.VulnerabilityFilterCriteria
+	Producer                    domain.Producer
 	LogFn                       domain.LogFn
 	StatFn                      domain.StatFn
 }
 
-// Handle filters an asset's vulnerabilities based on predefined criteria and returns
-// the payload without vulnerabilities that meet the requirements
+// Handle filters any AssetVulnerabilityDetails items from a given NexposeAssetVulnerabilitiesEvent
+// that do not meet the filter criteria, produces the filtered AssetVulnerabilityDetailsEvent to a stream,
+// and returns the filtered AssetVulnerabilityDetailsEvent, or an error if one occurred.
 func (h NexposeVulnFilter) Handle(ctx context.Context, input NexposeAssetVulnerabilitiesEvent) (NexposeAssetVulnerabilitiesEvent, error) {
-	output := NexposeAssetVulnerabilitiesEvent{
+	filteredAssetVulnEvent := NexposeAssetVulnerabilitiesEvent{
 		LastScanned:     input.LastScanned,
 		Hostname:        input.Hostname,
 		ID:              input.ID,
 		IP:              input.IP,
 		Vulnerabilities: h.FilterVulnerabilities(ctx, input),
 	}
-	return output, nil
+	_, err := h.Producer.Produce(ctx, filteredAssetVulnEvent)
+	if err != nil {
+		return NexposeAssetVulnerabilitiesEvent{}, err
+	}
+	return filteredAssetVulnEvent, nil
 }
 
 // FilterVulnerabilities returns a filtered list of vulnerabilities.

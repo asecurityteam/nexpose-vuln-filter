@@ -2,25 +2,19 @@ package v1
 
 import (
 	"context"
-	"io/ioutil"
+	"errors"
 	"regexp"
 	"testing"
 
-	"github.com/asecurityteam/logevent"
-	"github.com/asecurityteam/nexpose-vuln-filter/pkg/filter"
-	"github.com/asecurityteam/runhttp"
+	gomock "github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/require"
+
+	"github.com/asecurityteam/nexpose-vuln-filter/pkg/filter"
 )
 
 func TestHandle(t *testing.T) {
-	handler := NexposeVulnFilter{
-		VulnerabilityFilterCriteria: &filter.VulnerabilityFilterCriteria{
-			CVSSV2MinimumScore: 7.0,
-			VulnIDRegexp:       regexp.MustCompile("bad-.*"),
-		},
-		LogFn:  runhttp.LoggerFromContext,
-		StatFn: runhttp.StatFromContext,
-	}
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
 
 	input := NexposeAssetVulnerabilitiesEvent{
 		Vulnerabilities: []AssetVulnerabilityDetails{
@@ -31,9 +25,60 @@ func TestHandle(t *testing.T) {
 		},
 	}
 
-	ctx := logevent.NewContext(context.Background(), logevent.New(logevent.Config{Output: ioutil.Discard}))
-	out, err := handler.Handle(ctx, input)
+	output := NexposeAssetVulnerabilitiesEvent{
+		Vulnerabilities: []AssetVulnerabilityDetails{},
+	}
+
+	mockProducer := NewMockProducer(ctrl)
+	mockProducer.EXPECT().Produce(gomock.Any(), output).Return(nil, nil)
+
+	handler := NexposeVulnFilter{
+		VulnerabilityFilterCriteria: &filter.VulnerabilityFilterCriteria{
+			CVSSV2MinimumScore: 7.0,
+			VulnIDRegexp:       regexp.MustCompile("bad-.*"),
+		},
+		LogFn:    testLogFn,
+		StatFn:   testStatFn,
+		Producer: mockProducer,
+	}
+
+	out, err := handler.Handle(context.Background(), input)
 	require.Nil(t, err)
+	require.Empty(t, out.Vulnerabilities)
+}
+
+func TestHandleProducerError(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	input := NexposeAssetVulnerabilitiesEvent{
+		Vulnerabilities: []AssetVulnerabilityDetails{
+			AssetVulnerabilityDetails{
+				ID:          "test",
+				CvssV2Score: 6.0,
+			},
+		},
+	}
+
+	output := NexposeAssetVulnerabilitiesEvent{
+		Vulnerabilities: []AssetVulnerabilityDetails{},
+	}
+
+	mockProducer := NewMockProducer(ctrl)
+	mockProducer.EXPECT().Produce(gomock.Any(), output).Return(nil, errors.New(""))
+
+	handler := NexposeVulnFilter{
+		VulnerabilityFilterCriteria: &filter.VulnerabilityFilterCriteria{
+			CVSSV2MinimumScore: 7.0,
+			VulnIDRegexp:       regexp.MustCompile("bad-.*"),
+		},
+		LogFn:    testLogFn,
+		StatFn:   testStatFn,
+		Producer: mockProducer,
+	}
+
+	out, err := handler.Handle(context.Background(), input)
+	require.Error(t, err)
 	require.Empty(t, out.Vulnerabilities)
 }
 
@@ -143,18 +188,18 @@ func TestVulnFilterer(t *testing.T) {
 				CVSSV2MinimumScore: test.score,
 				VulnIDRegexp:       regexp.MustCompile(test.regex),
 			}
+
 			handler := NexposeVulnFilter{
 				VulnerabilityFilterCriteria: vulnFilterCriteria,
-				LogFn:                       runhttp.LoggerFromContext,
-				StatFn:                      runhttp.StatFromContext,
+				LogFn:                       testLogFn,
+				StatFn:                      testStatFn,
 			}
 
 			assetVulnerabilities := NexposeAssetVulnerabilitiesEvent{
 				Vulnerabilities: test.vulnerabilities,
 			}
 
-			ctx := logevent.NewContext(context.Background(), logevent.New(logevent.Config{Output: ioutil.Discard}))
-			filteredVulnerabilities := handler.FilterVulnerabilities(ctx, assetVulnerabilities)
+			filteredVulnerabilities := handler.FilterVulnerabilities(context.Background(), assetVulnerabilities)
 			require.ElementsMatch(t, filteredVulnerabilities, test.expected)
 		})
 	}

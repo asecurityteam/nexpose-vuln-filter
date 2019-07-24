@@ -62,9 +62,15 @@ paths:
           application/json:
             schema:
               anyOf:
+<<<<<<< b97e0fa2831a44600b03848841be4a1f5525061d:api.yaml
                 # an asset needs either a hostname OR an IP (or both)
                 - $ref: '#/components/schemas/AssetVulnerabilitiesWithIP'
                 - $ref: '#/components/schemas/AssetVulnerabilitiesWithHostname'
+=======
+                 # an asset needs either a hostname OR an IP (or both)
+                 - $ref: '#/components/schemas/AssetVulnerabilitiesEventWithIP'
+                 - $ref: '#/components/schemas/AssetVulnerabilitiesEventWithHostname'
+>>>>>>> SECD-750 Produce to a stream in the Handler:gateway-inbound.yaml
       responses:
         "200":
           description: "Success"
@@ -73,8 +79,13 @@ paths:
               schema:
                 anyOf:
                   # an asset needs either a hostname OR an IP (or both)
+<<<<<<< b97e0fa2831a44600b03848841be4a1f5525061d:api.yaml
                   - $ref: '#/components/schemas/AssetVulnerabilitiesWithIP'
                   - $ref: '#/components/schemas/AssetVulnerabilitiesWithHostname'
+=======
+                  - $ref: '#/components/schemas/AssetVulnerabilitiesEventWithIP'
+                  - $ref: '#/components/schemas/AssetVulnerabilitiesEventWithHostname'
+>>>>>>> SECD-750 Produce to a stream in the Handler:gateway-inbound.yaml
       x-transportd:
         backend: app
         enabled:
@@ -91,7 +102,11 @@ paths:
           error: '{"status": 500, "bodyPassthrough": true}'
 components:
   schemas:
+<<<<<<< b97e0fa2831a44600b03848841be4a1f5525061d:api.yaml
     AssetVulnerabilitiesWithIP:
+=======
+    AssetVulnerabilitiesEventWithIP:
+>>>>>>> SECD-750 Produce to a stream in the Handler:gateway-inbound.yaml
       type: object
       required:
         - id
@@ -99,10 +114,6 @@ components:
         - lastScanned
         - assetVulnerabilityDetails
       properties:
-        hostname:
-          type: string
-          example: corporate-workstation-1102DC.acme.com
-          description: The primary host name (local or FQDN) of the asset.
         id:
           type: integer
           format: int64
@@ -121,7 +132,11 @@ components:
           description: List of vulnerabilities found on the asset.
           items:
             $ref: '#/components/schemas/AssetVulnerabilityDetails'
+<<<<<<< b97e0fa2831a44600b03848841be4a1f5525061d:api.yaml
     AssetVulnerabilitiesWithHostname:
+=======
+    AssetVulnerabilitiesEventWithHostname:
+>>>>>>> SECD-750 Produce to a stream in the Handler:gateway-inbound.yaml
       type: object
       required:
         - id
@@ -129,19 +144,29 @@ components:
         - lastScanned
         - assetVulnerabilityDetails
       properties:
+<<<<<<< b97e0fa2831a44600b03848841be4a1f5525061d:api.yaml
         hostname:
           type: string
           example: corporate-workstation-1102DC.acme.com
           description: The primary host name (local or FQDN) of the asset.
+=======
+>>>>>>> SECD-750 Produce to a stream in the Handler:gateway-inbound.yaml
         id:
           type: integer
           format: int64
           example: 282
           description: The identifier of the asset.
+<<<<<<< b97e0fa2831a44600b03848841be4a1f5525061d:api.yaml
         ip:
           type: string
           example: 182.34.74.202
           description: The primary IPv4 or IPv6 address of the asset.
+=======
+        hostname:
+          type: string
+          example: corporate-workstation-1102DC.acme.com
+          description: The primary host name (local or FQDN) of the asset.
+>>>>>>> SECD-750 Produce to a stream in the Handler:gateway-inbound.yaml
         lastScanned:
           type: string
           format: date-time

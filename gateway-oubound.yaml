@@ -1,0 +1,231 @@
+openapi: 3.0.0
+x-runtime:
+  httpserver:
+    address: ":8082"
+  logger:
+    level: "INFO"
+    output: "STDOUT"
+  stats:
+    output: "DATADOG"
+    datadog:
+      address: "statsd:8125"
+      flushinterval: "10s"
+  signals:
+    installed:
+      - "OS"
+    os:
+      signals:
+        - 2 # SIGINT
+        - 15 # SIGTERM
+  connstate:
+    reportinterval: "5s"
+    hijackedcounter: "http.server.connstate.hijacked"
+    closedcounter: "http.server.connstate.closed"
+    idlegauge: "http.server.connstate.idle.gauge"
+    idlecounter: "http.server.connstate.idle"
+    activegauge: "http.server.connstate.active.gauge"
+    activecounter: "http.server.connstate.active"
+    newgauge: "http.server.connstate.new.gauge"
+    newcounter: "http.server.connstate.new"
+x-transportd:
+  backends:
+    - queue
+  queue:
+    host: "${HTTPPRODUCER_API_HOST}"
+    pool:
+      ttl: "15m"
+      count: 1
+info:
+  version: 1.0.0
+  title: "Nexpose Vulnerability Filter"
+  description: "Nexpose Vulnerability Filter uses filters based on CVSS score and regular expressions to add or remove vulnerabilities from an asset for further processing by the pipeline."
+  contact:
+    name: Security Development
+    email: secdev-external@atlassian.com
+  license:
+    name: Apache 2.0
+    url: 'https://www.apache.org/licenses/LICENSE-2.0.html'
+paths:
+/publish:
+    post:
+      description: Publish a filtered asset vulnerabilities event to an HTTP queue.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              anyOf:
+                # an asset needs either a hostname OR an IP (or both)
+                - $ref: '#/components/schemas/AssetVulnerabilitiesEventWithIP'
+                - $ref: '#/components/schemas/AssetVulnerabilitiesEventWithHostname'
+      responses:
+        "200":
+          description: "Success"
+        "400":
+          description: "Invalid input"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      x-transportd:
+        backend: queue
+        enabled:
+          - "accesslog"
+          - "requestvalidation"
+          - "timeout"
+          - "retry"
+        timeout:
+          after: "2s"
+        retry:
+          backoff: "50ms"
+          limit: 3
+          codes:
+            - 500
+            - 501
+            - 502
+            - 503
+            - 504
+            - 505
+            - 506
+            - 507
+            - 508
+            - 509
+            - 510
+            - 511
+components:
+  schemas:
+    AssetVulnerabilitiesEventWithIP:
+      type: object
+      required:
+        - id
+        - ip
+        - lastScanned
+        - assetVulnerabilityDetails
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 282
+          description: The identifier of the asset.
+        ip:
+          type: string
+          example: 182.34.74.202
+          description: The primary IPv4 or IPv6 address of the asset.
+        lastScanned:
+          type: string
+          format: date-time
+          description: The last time the asset was scanned.
+        assetVulnerabilityDetails:
+          type: array
+          description: List of vulnerabilities found on the asset.
+          items:
+            $ref: '#/components/schemas/AssetVulnerabilityDetails'
+    AssetVulnerabilitiesEventWithHostname:
+      type: object
+      required:
+        - id
+        - hostname
+        - lastScanned
+        - assetVulnerabilityDetails
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 282
+          description: The identifier of the asset.
+        hostname:
+          type: string
+          example: corporate-workstation-1102DC.acme.com
+          description: The primary host name (local or FQDN) of the asset.
+        lastScanned:
+          type: string
+          format: date-time
+          description: The last time the asset was scanned.
+        assetVulnerabilityDetails:
+          type: array
+          description: List of vulnerabilities found on the asset.
+          items:
+            $ref: '#/components/schemas/AssetVulnerabilityDetails'
+    AssetVulnerabilityDetails:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          type: string
+          example: ssh-openssh-x11uselocalhost-x11-forwarding-session-hijack
+          description: The identifier of the vulnerability.
+        results:
+          type: array
+          description: >-
+            The vulnerability check results for the finding. Multiple instances
+            may be present if one or more checks fired, or a check has multiple
+            independent results.
+          items:
+            $ref: '#/components/schemas/AssessmentResult'
+        cvssV2Score:
+          type: number
+          format: double
+          example: 4.4
+          description: 'The CVSS V2 score, which ranges from 0-10.'
+        cvssV2Severity:
+          type: string
+          example: Severe
+          description: >-
+            The severity of the vulnerability, one of: `"Moderate"`, `"Severe"`,
+            `"Critical"`.
+        description:
+          type: string
+          example: >-
+            <p>A remote code execution vulnerability exists in the way that the
+            scripting engine handles objects in memory in Microsoft Edge. ...</p>
+          description: The description of the vulnerability.
+        title:
+          type: string
+          example: >-
+            Microsoft CVE-2017-11804: Scripting Engine Memory Corruption
+            Vulnerability
+          description: The title (summary) of the vulnerability.
+        solutions:
+          type: array
+          items:
+            type: string
+          description: Solutions for remediation of the vulnerability.
+    AssessmentResult:
+      type: object
+      required:
+        - port
+        - protocol
+      properties:
+        port:
+          type: integer
+          format: int32
+          example: 22
+          description: The port of the service the result was discovered on.
+        protocol:
+          type: string
+          example: tcp
+          description: The protocol of the service the result was discovered on.
+          enum:
+            - ip
+            - icmp
+            - igmp
+            - ggp
+            - tcp
+            - pup
+            - udp
+            - idp
+            - esp
+            - nd
+            - raw
+    Error:
+      type: object
+      properties:
+        errorMessage:
+          type: string
+        errorType:
+          type: string
+        stackTrace:
+          type: array
+          items:
+            type: string

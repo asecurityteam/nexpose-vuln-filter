@@ -16,6 +16,7 @@ lint:
 	docker run -ti \
         --mount src="$(DIR)",target="/go/src/$(PROJECT_PATH)",type="bind" \
         -w "/go/src/$(PROJECT_PATH)" \
+		-e "GOGC=10" \
         asecurityteam/sdcli:v1 go lint
 
 test:
