@@ -52,11 +52,11 @@ func (c *component) New(ctx context.Context, conf *config) (func(context.Context
 		return nil, err
 	}
 
-	filterHandler := &v1.NexposeVulnFilter{
-		LogFn:                       domain.LoggerFromContext,
-		StatFn:                      domain.StatFromContext,
-		VulnerabilityFilterCriteria: f,
-		Producer:                    p,
+	filterHandler := &v1.FilterHandler{
+		LogFn:               domain.LoggerFromContext,
+		StatFn:              domain.StatFromContext,
+		VulnerabilityFilter: f,
+		Producer:            p,
 	}
 	handlers := map[string]serverfull.Function{
 		"filter": serverfull.NewFunction(filterHandler.Handle),
