@@ -2,7 +2,7 @@ TAG := $(shell git rev-parse --short HEAD)
 DIR := $(shell pwd -L)
 GOPATH := ${GOPATH}
 ifeq ($(GOPATH),)
-	GOPATH := ${HOME}/go
+    GOPATH := ${HOME}/go
 endif
 PROJECT_PATH := $(subst $(GOPATH)/src/,,$(DIR))
 
@@ -16,7 +16,7 @@ lint:
 	docker run -ti \
         --mount src="$(DIR)",target="/go/src/$(PROJECT_PATH)",type="bind" \
         -w "/go/src/$(PROJECT_PATH)" \
-		-e "GOGC=10" \
+        -e "GOGC=10" \
         asecurityteam/sdcli:v1 go lint
 
 test:
