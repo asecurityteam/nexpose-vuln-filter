@@ -53,14 +53,20 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AssetWithVulnerabilities'
+              anyOf:
+                # an asset needs either a hostname OR an IP (or both)
+                - $ref: '#/components/schemas/AssetVulnerabilitiesWithIP'
+                - $ref: '#/components/schemas/AssetVulnerabilitiesWithHostname'
       responses:
         "200":
           description: "Success"
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AssetWithVulnerabilities'
+                anyOf:
+                  # an asset needs either a hostname OR an IP (or both)
+                  - $ref: '#/components/schemas/AssetVulnerabilitiesWithIP'
+                  - $ref: '#/components/schemas/AssetVulnerabilitiesWithHostname'
       x-transportd:
         backend: app
         enabled:
@@ -77,11 +83,41 @@ paths:
           error: '{"status": 500, "bodyPassthrough": true}'
 components:
   schemas:
-    AssetWithVulnerabilities:
+    AssetVulnerabilitiesWithIP:
       type: object
       required:
         - id
         - ip
+        - lastScanned
+        - assetVulnerabilityDetails
+      properties:
+        hostname:
+          type: string
+          example: corporate-workstation-1102DC.acme.com
+          description: The primary host name (local or FQDN) of the asset.
+        id:
+          type: integer
+          format: int64
+          example: 282
+          description: The identifier of the asset.
+        ip:
+          type: string
+          example: 182.34.74.202
+          description: The primary IPv4 or IPv6 address of the asset.
+        lastScanned:
+          type: string
+          format: date-time
+          description: The last time the asset was scanned.
+        assetVulnerabilityDetails:
+          type: array
+          description: List of vulnerabilities found on the asset.
+          items:
+            $ref: '#/components/schemas/AssetVulnerabilityDetails'
+    AssetVulnerabilitiesWithHostname:
+      type: object
+      required:
+        - id
+        - hostname
         - lastScanned
         - assetVulnerabilityDetails
       properties:
