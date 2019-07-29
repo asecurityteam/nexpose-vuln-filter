@@ -74,12 +74,12 @@ func (h FilterHandler) Handle(ctx context.Context, input NexposeAssetVulnerabili
 
 func vulnDetailsToVuln(vulnDetails []AssetVulnerabilityDetails) []domain.Vulnerability {
 	vulns := make([]domain.Vulnerability, len(vulnDetails))
-	for i, vulnDetail := range vulnDetails {
+	for vulnOffset, vulnDetail := range vulnDetails {
 		results := make([]domain.AssessmentResult, len(vulnDetail.Results))
-		for j, result := range vulnDetail.Results {
-			results[j] = domain.AssessmentResult(result)
+		for resultOffset, result := range vulnDetail.Results {
+			results[resultOffset] = domain.AssessmentResult(result)
 		}
-		vulns[i] = domain.Vulnerability{
+		vulns[vulnOffset] = domain.Vulnerability{
 			ID:             vulnDetail.ID,
 			Results:        results,
 			CvssV2Score:    vulnDetail.CvssV2Score,
@@ -94,12 +94,12 @@ func vulnDetailsToVuln(vulnDetails []AssetVulnerabilityDetails) []domain.Vulnera
 
 func vulnToVulnDetails(vulns []domain.Vulnerability) []AssetVulnerabilityDetails {
 	vulnDetails := make([]AssetVulnerabilityDetails, len(vulns))
-	for i, vuln := range vulns {
+	for vulnOffset, vuln := range vulns {
 		results := make([]AssessmentResult, len(vuln.Results))
-		for j, result := range vuln.Results {
-			results[j] = AssessmentResult(result)
+		for resultOffset, result := range vuln.Results {
+			results[resultOffset] = AssessmentResult(result)
 		}
-		vulnDetails[i] = AssetVulnerabilityDetails{
+		vulnDetails[vulnOffset] = AssetVulnerabilityDetails{
 			ID:             vuln.ID,
 			Results:        results,
 			CvssV2Score:    vuln.CvssV2Score,
