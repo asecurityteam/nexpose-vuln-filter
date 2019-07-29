@@ -24,6 +24,16 @@ func TestVulnFilterComponentDefaultConfig(t *testing.T) {
 	require.NoError(t, err)
 }
 
+func TestVulnFilterComponentInvalidRegexConfig(t *testing.T) {
+	component := &VulnerabilityFilterComponent{}
+	config := &VulnerabilityFilterConfig{
+		CVSSV2MinimumScore: 7.0,
+		VulnIDRegexMatch:   "[bad-",
+	}
+	_, err := component.New(context.Background(), config)
+	require.Error(t, err)
+}
+
 func TestFilterVulnerabilities(t *testing.T) {
 	tests := []struct {
 		name            string

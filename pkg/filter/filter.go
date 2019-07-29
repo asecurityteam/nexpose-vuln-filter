@@ -39,9 +39,14 @@ func (v *VulnerabilityFilterComponent) Settings() *VulnerabilityFilterConfig {
 
 // New constructs a VulnerabilityFilterCriteria from a config.
 func (v *VulnerabilityFilterComponent) New(_ context.Context, c *VulnerabilityFilterConfig) (*VulnerabilityFilter, error) {
+	expression, err := regexp.Compile(c.VulnIDRegexMatch)
+	if err != nil {
+		return &VulnerabilityFilter{}, err
+	}
+
 	return &VulnerabilityFilter{
 		CVSSV2MinimumScore: c.CVSSV2MinimumScore,
-		VulnIDRegexp:       regexp.MustCompile(c.VulnIDRegexMatch),
+		VulnIDRegexp:       expression,
 		LogFn:              domain.LoggerFromContext,
 		StatFn:             domain.StatFromContext,
 	}, nil
