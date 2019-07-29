@@ -68,7 +68,8 @@ func (f VulnerabilityFilter) FilterVulnerabilities(ctx context.Context, asset do
 
 	filteredVulnerabilities := make([]domain.Vulnerability, 0)
 	for _, vuln := range vulnerabilities {
-		if vuln.CvssV2Score > f.CVSSV2MinimumScore {
+		switch {
+		case vuln.CvssV2Score > f.CVSSV2MinimumScore:
 			filteredVulnerabilities = append(filteredVulnerabilities, vuln)
 			logger.Info(logs.VulnerabilityFiltered{
 				Action:  logs.VulnRetained,
@@ -77,7 +78,7 @@ func (f VulnerabilityFilter) FilterVulnerabilities(ctx context.Context, asset do
 				AssetID: asset.ID,
 			})
 			stater.Count("event.nexposevulnerability.filter.accepted", 1)
-		} else if f.VulnIDRegexp.MatchString(vuln.ID) {
+		case f.VulnIDRegexp.MatchString(vuln.ID):
 			filteredVulnerabilities = append(filteredVulnerabilities, vuln)
 			logger.Info(logs.VulnerabilityFiltered{
 				Action:  logs.VulnRetained,
@@ -86,7 +87,7 @@ func (f VulnerabilityFilter) FilterVulnerabilities(ctx context.Context, asset do
 				AssetID: asset.ID,
 			})
 			stater.Count("event.nexposevulnerability.filter.accepted", 1)
-		} else {
+		default:
 			logger.Info(logs.VulnerabilityFiltered{
 				Action:  logs.VulnDiscarded,
 				VulnID:  vuln.ID,
