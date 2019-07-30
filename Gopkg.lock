@@ -170,12 +170,12 @@
   version = "v0.1.0"
 
 [[projects]]
-  digest = "1:79f4672b24c423328cb42605d4c4bcb219ba951d64377dfbd31c95f3403a246a"
+  digest = "1:c6db3904b02419d6682b027a0b7472b6dfee7776be2c80b38568a2edfb1fc34e"
   name = "github.com/asecurityteam/component-producer"
   packages = ["."]
   pruneopts = "UT"
-  revision = "1674cfc34cff5802bf3da849526fd71071d7f02a"
-  version = "v0.4.0"
+  revision = "418495aa6213db4d014b529b505d3ed429147dfd"
+  version = "v0.4.1"
 
 [[projects]]
   digest = "1:79c187e5b848602e1ab00b6bf1bc4b36b30b580cf3050590da6437caaffe6ec9"
@@ -256,7 +256,7 @@
   version = "v0.3.2"
 
 [[projects]]
-  digest = "1:fc53fe55ee530de09a7593d102a4aae9df3fa085abeb9fbd41becc6d56e335f2"
+  digest = "1:f72cb64e41191cfd2298306e1966b494ed0a66cd3b709025a4e662727016fe7e"
   name = "github.com/aws/aws-lambda-go"
   packages = [
     "lambda",
@@ -265,11 +265,11 @@
     "lambdacontext",
   ]
   pruneopts = "UT"
-  revision = "c83699c938a36c6d111f9837be9295184efeeb2e"
-  version = "v1.9.0"
+  revision = "578ce6d457b2e74402b4abadbff3d37ea8173f87"
+  version = "v1.12.0"
 
 [[projects]]
-  digest = "1:20613015863b4a9dd1246c697ba728128f702222097c41d4c9ac3a5ea4ca9b20"
+  digest = "1:825c58ea9cba72fdffb1c7b8c1bbd7ceab46e94aa305820dddb9251b5f233d14"
   name = "github.com/aws/aws-sdk-go"
   packages = [
     "aws",
@@ -323,8 +323,8 @@
     "service/sts/stsiface",
   ]
   pruneopts = "UT"
-  revision = "3d64de9191c7cf300083c8ff3049bf079c5b67ba"
-  version = "v1.21.3"
+  revision = "b024dccbed5bf4ecdf4718113f282c0ef972a776"
+  version = "v1.21.8"
 
 [[projects]]
   digest = "1:4934e5e39af906e43f90db046ef879b3867868ebc552f227cebefd0f5997e195"
@@ -438,7 +438,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:a87926c0cddaaa0cff3195d9dffca2abb572674e1dcdc830d2017a7b61a60e88"
+  digest = "1:d4482076b38eefad8454f78ad740a06a9e6ba3e8135d6e374f5f30d62d27123f"
   name = "github.com/getkin/kin-openapi"
   packages = [
     "jsoninfo",
@@ -447,7 +447,7 @@
     "pathpattern",
   ]
   pruneopts = "UT"
-  revision = "507456aa4476d1650cfe38d092beae3d30ccd2a6"
+  revision = "8785b416cb32bd1890a2518d1be7efcf5d62c0df"
 
 [[projects]]
   digest = "1:2cd7915ab26ede7d95b8749e6b1f933f1c6d5398030684e6505940a10f31cfda"
@@ -593,12 +593,12 @@
   version = "v1.0.1"
 
 [[projects]]
-  digest = "1:67474f760e9ac3799f740db2c489e6423a4cde45520673ec123ac831ad849cb8"
+  digest = "1:7fae9ec96d10b2afce0da23c378c8b3389319b7f92fa092f2621bba3078cfb4b"
   name = "github.com/hashicorp/golang-lru"
   packages = ["simplelru"]
   pruneopts = "UT"
-  revision = "7087cb70de9f7a8bc0a10c375cb0d2280a8edf9c"
-  version = "v0.5.1"
+  revision = "7f827b33c0f158ec5dfbba01bb0b14a4541fd81d"
+  version = "v0.5.3"
 
 [[projects]]
   digest = "1:ae221758bdddd57f5c76f4ee5e4110af32ee62583c46299094697f8f127e63da"
@@ -740,15 +740,15 @@
   version = "v1.0.0"
 
 [[projects]]
-  digest = "1:f690a0a27cefae695fa9587aa3ed23652e593be1d98b35f8184d10bccec30444"
+  digest = "1:deaa16d7af744e4d151c4d232dda2578e6ae9c4732a210f9a018012d3fdf654c"
   name = "github.com/pierrec/lz4"
   packages = [
     ".",
     "internal/xxh32",
   ]
   pruneopts = "UT"
-  revision = "057d66e894a4e55853274a3bbbf7de02ba639e43"
-  version = "v2.2.4"
+  revision = "377214e3044ff9f12d996f3037fb8c3e3ad16b49"
+  version = "v2.2.5"
 
 [[projects]]
   digest = "1:cf31692c14422fa27c83a05292eb5cbe0fb2775972e8f1f8446a71549bd8980b"
@@ -857,7 +857,7 @@
   revision = "c67367528e160e557423e4d87059614d8c31a582"
 
 [[projects]]
-  digest = "1:772057e3c30cb5bee83fb0ff67b9255f9d9aa551f500ed85c103e68b4ed02112"
+  digest = "1:ff8c32bee60523e39cd04e58b14fae0c3d6adcbc419e9e0c3d991af0390ab270"
   name = "github.com/rs/zerolog"
   packages = [
     ".",
@@ -865,8 +865,8 @@
     "internal/json",
   ]
   pruneopts = "UT"
-  revision = "651d361cfeb9d0f5b9f1d14b162c66c82509ef6d"
-  version = "v1.13.0"
+  revision = "acf3980132bfcdc48638724e6e3d9e5749b85999"
+  version = "v1.14.3"
 
 [[projects]]
   digest = "1:08d65904057412fc0270fc4812a1c90c594186819243160dc779a402d4b6d0bc"
@@ -986,7 +986,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:55dda8a7bb8c14ea6be441f1fa013018993962077c040f81d135796a24684609"
+  digest = "1:766019472a0eb016ca1023511d9993cf9cd3f2ed7a6394b325c2e4781e41777a"
   name = "golang.org/x/net"
   packages = [
     "context",
@@ -1004,7 +1004,7 @@
     "websocket",
   ]
   pruneopts = "UT"
-  revision = "e3b2ff56ed879efa686c9d09ed74f9bfe42f1a1d"
+  revision = "ca1201d0de80cfde86cb01aea620983605dfe99b"
 
 [[projects]]
   branch = "master"
@@ -1033,14 +1033,14 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:31d44814b45607afa77c6e8ef20ea8bacc1d1053fe084440c874f311732e7ec3"
+  digest = "1:6f4db4018547b0c19aa51a66ea3a5eed800cc5e2de9df6490a37b14d06155f22"
   name = "golang.org/x/sys"
   packages = [
     "unix",
     "windows",
   ]
   pruneopts = "UT"
-  revision = "fae7ac547cb717d141c433a2a173315e216b64c4"
+  revision = "1393eb0183657fb29200106b17a5042ec6e48dbe"
 
 [[projects]]
   digest = "1:8d8faad6b12a3a4c819a3f9618cb6ee1fa1cfc33253abeeea8b55336721e3405"
@@ -1123,7 +1123,7 @@
   revision = "c506a9f9061087022822e8da603a52fc387115a8"
 
 [[projects]]
-  digest = "1:94dd3fb42315b97533bb74fe15498905734bc3a3c6e692dc7839fec749d44d26"
+  digest = "1:01b9d0e52a1c429a4654d90fe3ddd9711b743469869284bffb1c949200c14cdc"
   name = "google.golang.org/grpc"
   packages = [
     ".",
@@ -1172,8 +1172,8 @@
     "tap",
   ]
   pruneopts = "UT"
-  revision = "1d89a3c832915b2314551c1d2a506874d62e53f7"
-  version = "v1.22.0"
+  revision = "045159ad57f3781d409358e3ade910a018c16b30"
+  version = "v1.22.1"
 
 [[projects]]
   digest = "1:c902038ee2d6f964d3b9f2c718126571410c5d81251cbab9fe58abd37803513c"
