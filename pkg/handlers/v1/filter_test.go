@@ -2,27 +2,21 @@ package v1
 
 import (
 	"context"
-	"io/ioutil"
-	"regexp"
+	"errors"
 	"testing"
 
-	"github.com/asecurityteam/logevent"
-	"github.com/asecurityteam/nexpose-vuln-filter/pkg/filter"
-	"github.com/asecurityteam/runhttp"
+	gomock "github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/require"
+
+	"github.com/asecurityteam/nexpose-vuln-filter/pkg/domain"
 )
 
 func TestHandle(t *testing.T) {
-	handler := NexposeVulnFilter{
-		VulnerabilityFilterCriteria: &filter.VulnerabilityFilterCriteria{
-			CVSSV2MinimumScore: 7.0,
-			VulnIDRegexp:       regexp.MustCompile("bad-.*"),
-		},
-		LogFn:  runhttp.LoggerFromContext,
-		StatFn: runhttp.StatFromContext,
-	}
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
 
 	input := NexposeAssetVulnerabilitiesEvent{
+		ID: 123,
 		Vulnerabilities: []AssetVulnerabilityDetails{
 			AssetVulnerabilityDetails{
 				ID:          "test",
@@ -31,107 +25,136 @@ func TestHandle(t *testing.T) {
 		},
 	}
 
-	ctx := logevent.NewContext(context.Background(), logevent.New(logevent.Config{Output: ioutil.Discard}))
-	out, err := handler.Handle(ctx, input)
+	output := NexposeAssetVulnerabilitiesEvent{
+		ID:              input.ID,
+		Vulnerabilities: []AssetVulnerabilityDetails{},
+	}
+
+	asset := domain.Asset{
+		ID: input.ID,
+	}
+	vulns := []domain.Vulnerability{
+		domain.Vulnerability{
+			ID:          "test",
+			CvssV2Score: 6.0,
+			Results:     make([]domain.AssessmentResult, 0),
+		},
+	}
+
+	mockFilter := NewMockVulnerabilityFilter(ctrl)
+	mockFilter.EXPECT().FilterVulnerabilities(gomock.Any(), asset, vulns).Return([]domain.Vulnerability{})
+
+	mockProducer := NewMockProducer(ctrl)
+	mockProducer.EXPECT().Produce(gomock.Any(), output).Return(nil, nil)
+
+	handler := FilterHandler{
+		VulnerabilityFilter: mockFilter,
+		Producer:            mockProducer,
+		LogFn:               testLogFn,
+		StatFn:              testStatFn,
+	}
+
+	out, err := handler.Handle(context.Background(), input)
 	require.Nil(t, err)
 	require.Empty(t, out.Vulnerabilities)
 }
 
-func TestVulnFilterer(t *testing.T) {
+func TestHandleProducerError(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	input := NexposeAssetVulnerabilitiesEvent{
+		ID: 123,
+		Vulnerabilities: []AssetVulnerabilityDetails{
+			AssetVulnerabilityDetails{
+				ID:          "test",
+				CvssV2Score: 6.0,
+			},
+		},
+	}
+
+	output := NexposeAssetVulnerabilitiesEvent{
+		ID:              input.ID,
+		Vulnerabilities: []AssetVulnerabilityDetails{},
+	}
+
+	asset := domain.Asset{
+		ID: input.ID,
+	}
+	vulns := []domain.Vulnerability{
+		domain.Vulnerability{
+			ID:          "test",
+			CvssV2Score: 6.0,
+			Results:     make([]domain.AssessmentResult, 0),
+		},
+	}
+
+	mockFilter := NewMockVulnerabilityFilter(ctrl)
+	mockFilter.EXPECT().FilterVulnerabilities(gomock.Any(), asset, vulns).Return([]domain.Vulnerability{})
+
+	mockProducer := NewMockProducer(ctrl)
+	mockProducer.EXPECT().Produce(gomock.Any(), output).Return(nil, errors.New(""))
+
+	handler := FilterHandler{
+		VulnerabilityFilter: mockFilter,
+		Producer:            mockProducer,
+		LogFn:               testLogFn,
+		StatFn:              testStatFn,
+	}
+
+	out, err := handler.Handle(context.Background(), input)
+	require.Error(t, err)
+	require.Empty(t, out.Vulnerabilities)
+}
+
+func TestVulnDetailsToVuln(t *testing.T) {
 	tests := []struct {
-		name            string
-		score           float64
-		regex           string
-		vulnerabilities []AssetVulnerabilityDetails
-		expected        []AssetVulnerabilityDetails
+		name          string
+		vulnDetails   []AssetVulnerabilityDetails
+		expectedVulns []domain.Vulnerability
 	}{
 		{
-			"empty vuln list",
-			7.0,
-			".*",
+			"empty AssetVulnerabilityDetails",
 			[]AssetVulnerabilityDetails{},
-			[]AssetVulnerabilityDetails{},
+			[]domain.Vulnerability{},
 		},
 		{
-			"filters out vulnerability that does not meet threshold or title regex",
-			7.0,
-			"bad-vuln-.*",
+			"empty Results",
 			[]AssetVulnerabilityDetails{
 				AssetVulnerabilityDetails{
-					ID:          "test-vuln-1",
-					CvssV2Score: 6.0,
+					ID:      "foo",
+					Results: []AssessmentResult{},
 				},
 			},
-			[]AssetVulnerabilityDetails{},
-		},
-		{
-			"does not filter out vulnerability that meets threshold but not regex",
-			7.0,
-			"bad-vuln-.*",
-			[]AssetVulnerabilityDetails{
-				AssetVulnerabilityDetails{
-					ID:          "test-vuln-1",
-					CvssV2Score: 8.0,
-				},
-			},
-			[]AssetVulnerabilityDetails{
-				AssetVulnerabilityDetails{
-					ID:          "test-vuln-1",
-					CvssV2Score: 8.0,
+			[]domain.Vulnerability{
+				domain.Vulnerability{
+					ID:      "foo",
+					Results: make([]domain.AssessmentResult, 0),
 				},
 			},
 		},
 		{
-			"does not filter out vulnerability that meets regex but not threshold",
-			7.0,
-			"test-vuln-.*",
+			"AssetVulnerabilityDetails with Results",
 			[]AssetVulnerabilityDetails{
 				AssetVulnerabilityDetails{
-					ID:          "test-vuln-1",
-					CvssV2Score: 4.0,
+					ID: "foo",
+					Results: []AssessmentResult{
+						AssessmentResult{
+							Port:     80,
+							Protocol: "HTTP",
+						},
+					},
 				},
 			},
-			[]AssetVulnerabilityDetails{
-				AssetVulnerabilityDetails{
-					ID:          "test-vuln-1",
-					CvssV2Score: 4.0,
-				},
-			},
-		},
-		{
-			"filters multiple vulnerabilities correctly",
-			7.0,
-			"bad-vuln-.*",
-			[]AssetVulnerabilityDetails{
-				AssetVulnerabilityDetails{
-					ID:          "test-vuln-1",
-					CvssV2Score: 5.0,
-				},
-				AssetVulnerabilityDetails{
-					ID:          "test-vuln-2",
-					CvssV2Score: 8.0,
-				},
-				AssetVulnerabilityDetails{
-					ID:          "test-vuln-3",
-					CvssV2Score: 9.0,
-				},
-				AssetVulnerabilityDetails{
-					ID:          "bad-vuln-4",
-					CvssV2Score: 4.0,
-				},
-			},
-			[]AssetVulnerabilityDetails{
-				AssetVulnerabilityDetails{
-					ID:          "test-vuln-2",
-					CvssV2Score: 8.0,
-				},
-				AssetVulnerabilityDetails{
-					ID:          "test-vuln-3",
-					CvssV2Score: 9.0,
-				},
-				AssetVulnerabilityDetails{
-					ID:          "bad-vuln-4",
-					CvssV2Score: 4.0,
+			[]domain.Vulnerability{
+				domain.Vulnerability{
+					ID: "foo",
+					Results: []domain.AssessmentResult{
+						domain.AssessmentResult{
+							Port:     80,
+							Protocol: "HTTP",
+						},
+					},
 				},
 			},
 		},
@@ -139,23 +162,69 @@ func TestVulnFilterer(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(tt *testing.T) {
-			vulnFilterCriteria := &filter.VulnerabilityFilterCriteria{
-				CVSSV2MinimumScore: test.score,
-				VulnIDRegexp:       regexp.MustCompile(test.regex),
-			}
-			handler := NexposeVulnFilter{
-				VulnerabilityFilterCriteria: vulnFilterCriteria,
-				LogFn:                       runhttp.LoggerFromContext,
-				StatFn:                      runhttp.StatFromContext,
-			}
+			vulns := vulnDetailsToVuln(test.vulnDetails)
+			require.ElementsMatch(t, vulns, test.expectedVulns)
+		})
+	}
+}
 
-			assetVulnerabilities := NexposeAssetVulnerabilitiesEvent{
-				Vulnerabilities: test.vulnerabilities,
-			}
+func TestVulnToVulnDetails(t *testing.T) {
+	tests := []struct {
+		name                string
+		vulns               []domain.Vulnerability
+		expectedVulnDetails []AssetVulnerabilityDetails
+	}{
+		{
+			"empty AssetVulnerabilityDetails",
+			[]domain.Vulnerability{},
+			[]AssetVulnerabilityDetails{},
+		},
+		{
+			"empty Results",
+			[]domain.Vulnerability{
+				domain.Vulnerability{
+					ID:      "foo",
+					Results: make([]domain.AssessmentResult, 0),
+				},
+			},
+			[]AssetVulnerabilityDetails{
+				AssetVulnerabilityDetails{
+					ID:      "foo",
+					Results: []AssessmentResult{},
+				},
+			},
+		},
+		{
+			"AssetVulnerabilityDetails with Results",
+			[]domain.Vulnerability{
+				domain.Vulnerability{
+					ID: "foo",
+					Results: []domain.AssessmentResult{
+						domain.AssessmentResult{
+							Port:     80,
+							Protocol: "HTTP",
+						},
+					},
+				},
+			},
+			[]AssetVulnerabilityDetails{
+				AssetVulnerabilityDetails{
+					ID: "foo",
+					Results: []AssessmentResult{
+						AssessmentResult{
+							Port:     80,
+							Protocol: "HTTP",
+						},
+					},
+				},
+			},
+		},
+	}
 
-			ctx := logevent.NewContext(context.Background(), logevent.New(logevent.Config{Output: ioutil.Discard}))
-			filteredVulnerabilities := handler.FilterVulnerabilities(ctx, assetVulnerabilities)
-			require.ElementsMatch(t, filteredVulnerabilities, test.expected)
+	for _, test := range tests {
+		t.Run(test.name, func(tt *testing.T) {
+			vulns := vulnToVulnDetails(test.vulns)
+			require.ElementsMatch(t, vulns, test.expectedVulnDetails)
 		})
 	}
 }

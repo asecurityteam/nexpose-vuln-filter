@@ -46,6 +46,14 @@ info:
     name: Apache 2.0
     url: 'https://www.apache.org/licenses/LICENSE-2.0.html'
 paths:
+  /healthcheck:
+    get:
+      description: "Liveness check."
+      responses:
+        "200":
+          description: "Success."
+      x-transportd:
+        backend: app
   /filter:
     post:
       description: Accepts a Nexpose asset payload with Nexpose vulnerabilities and returns the asset payload with a filtered list of vulnerabilities based on configuration.
@@ -54,9 +62,9 @@ paths:
           application/json:
             schema:
               anyOf:
-                # an asset needs either a hostname OR an IP (or both)
-                - $ref: '#/components/schemas/AssetVulnerabilitiesWithIP'
-                - $ref: '#/components/schemas/AssetVulnerabilitiesWithHostname'
+                 # an asset needs either a hostname OR an IP (or both)
+                 - $ref: '#/components/schemas/AssetVulnerabilitiesEventWithIP'
+                 - $ref: '#/components/schemas/AssetVulnerabilitiesEventWithHostname'
       responses:
         "200":
           description: "Success"
@@ -65,8 +73,8 @@ paths:
               schema:
                 anyOf:
                   # an asset needs either a hostname OR an IP (or both)
-                  - $ref: '#/components/schemas/AssetVulnerabilitiesWithIP'
-                  - $ref: '#/components/schemas/AssetVulnerabilitiesWithHostname'
+                  - $ref: '#/components/schemas/AssetVulnerabilitiesEventWithIP'
+                  - $ref: '#/components/schemas/AssetVulnerabilitiesEventWithHostname'
       x-transportd:
         backend: app
         enabled:
@@ -83,7 +91,7 @@ paths:
           error: '{"status": 500, "bodyPassthrough": true}'
 components:
   schemas:
-    AssetVulnerabilitiesWithIP:
+    AssetVulnerabilitiesEventWithIP:
       type: object
       required:
         - id
@@ -91,10 +99,6 @@ components:
         - lastScanned
         - assetVulnerabilityDetails
       properties:
-        hostname:
-          type: string
-          example: corporate-workstation-1102DC.acme.com
-          description: The primary host name (local or FQDN) of the asset.
         id:
           type: integer
           format: int64
@@ -113,7 +117,7 @@ components:
           description: List of vulnerabilities found on the asset.
           items:
             $ref: '#/components/schemas/AssetVulnerabilityDetails'
-    AssetVulnerabilitiesWithHostname:
+    AssetVulnerabilitiesEventWithHostname:
       type: object
       required:
         - id
@@ -121,19 +125,15 @@ components:
         - lastScanned
         - assetVulnerabilityDetails
       properties:
-        hostname:
-          type: string
-          example: corporate-workstation-1102DC.acme.com
-          description: The primary host name (local or FQDN) of the asset.
         id:
           type: integer
           format: int64
           example: 282
           description: The identifier of the asset.
-        ip:
+        hostname:
           type: string
-          example: 182.34.74.202
-          description: The primary IPv4 or IPv6 address of the asset.
+          example: corporate-workstation-1102DC.acme.com
+          description: The primary host name (local or FQDN) of the asset.
         lastScanned:
           type: string
           format: date-time
