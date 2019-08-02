@@ -3,13 +3,14 @@ x-runtime:
   httpserver:
     address: ":8080"
   logger:
-    level: "INFO"
-    output: "STDOUT"
+    level: "${SERVERFULL_RUNTIME_LOGGER_LEVEL}"
+    output: "${SERVERFULL_RUNTIME_LOGGER_OUTPUT}"
   stats:
-    output: "DATADOG"
+    output: "${SERVERFULL_RUNTIME_STATS_OUTPUT}"
     datadog:
-      address: "statsd:8125"
-      flushinterval: "10s"
+      address: "${SERVERFULL_RUNTIME_STATS_DATADOG_ADDRESS}"
+      flushinterval: "${SERVERFULL_RUNTIME_STATS_DATADOG_FLUSHINTERVAL}"
+      tags: "${SERVERFULL_RUNTIME_STATS_DATADOG_TAGS}"
   signals:
     installed:
       - "OS"

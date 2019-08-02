@@ -1,10 +1,19 @@
-version: '3'
+version: '3.4'
+x-common-variables: &common-variables
+  SERVERFULL_RUNTIME_LOGGER_OUTPUT: "STDOUT"
+  SERVERFULL_RUNTIME_LOGGER_LEVEL: "INFO"
+  SERVERFULL_RUNTIME_STATS_OUTPUT: "NULL"
+  SERVERFULL_RUNTIME_STATS_DATADOG_TAGS: ""
+  SERVERFULL_RUNTIME_STATS_DATADOG_PACKETSIZE: 32768
+  SERVERFULL_RUNTIME_STATS_DATADOG_FLUSHINTERVAL: 10s
+  SERVERFULL_RUNTIME_STATS_DATADOG_ADDRESS: statsd:8125
 services:
   app:
     build:
       context: .
       dockerfile: Dockerfile
     environment:
+      <<: *common-variables
       SERVERFULL_RUNTIME_HTTPSERVER_ADDRESS: :8081
       SERVERFULL_RUNTIME_CONNSTATE_REPORTINTERVAL: 5s
       SERVERFULL_RUNTIME_CONNSTATE_HIJACKEDCOUNTER: http.server.connstate.hijacked
@@ -15,13 +24,6 @@ services:
       SERVERFULL_RUNTIME_CONNSTATE_ACTIVECOUNTER: http.server.connstate.active
       SERVERFULL_RUNTIME_CONNSTATE_NEWGAUGE: http.server.connstate.new.gauge
       SERVERFULL_RUNTIME_CONNSTATE_NEWCOUNTER: http.server.connstate.new
-      SERVERFULL_RUNTIME_LOGGER_OUTPUT: STDOUT
-      SERVERFULL_RUNTIME_LOGGER_LEVEL: INFO
-      SERVERFULL_RUNTIME_STATS_OUTPUT: DATADOG
-      SERVERFULL_RUNTIME_STATS_DATADOG_PACKETSIZE: 32768
-      SERVERFULL_RUNTIME_STATS_DATADOG_TAGS:
-      SERVERFULL_RUNTIME_STATS_DATADOG_FLUSHINTERVAL: 10s
-      SERVERFULL_RUNTIME_STATS_DATADOG_ADDRESS: statsd:8125
       SERVERFULL_RUNTIME_SIGNALS_INSTALLED: OS
       SERVERFULL_RUNTIME_SIGNALS_OS_SIGNALS: 15 2
       NEXPOSEVULNFILTER_LAMBDAMODE: "false"
@@ -32,19 +34,20 @@ services:
       NEXPOSEVULNFILTER_PRODUCER_POST_HTTPCLIENT_SMART_OPENAPI: ""
       NEXPOSEVULNFILTER_VULNERABILITYFILTER_CVSSV2MINIMUMSCORE: 7.0
       NEXPOSEVULNFILTER_VULNERABILITYFILTER_VULNIDREGEXMATCH: tls-server-cert.*expire.*|ssl-.*sign.*
-  gateway-inbound:
+  gateway-incoming:
     build:
       context: .
-      dockerfile: gateway-inbound.Dockerfile
-      depends_on:
-        - app
+      dockerfile: gateway-incoming.Dockerfile
     ports:
       - "8080:8080"
-  gateway-outbound:
+    environment:
+      <<: *common-variables
+  gateway-outgoing:
     build:
       context: .
-      dockerfile: gateway-outbound.Dockerfile
+      dockerfile: gateway-outgoing.Dockerfile
     ports:
       - "8082:8082"
     environment:
-      HTTPPRODUCER_API_HOST:
+      <<: *common-variables
+      HTTPPRODUCER_API_HOST: ""
