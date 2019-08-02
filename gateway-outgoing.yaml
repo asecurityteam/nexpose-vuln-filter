@@ -101,7 +101,6 @@ components:
         - id
         - ip
         - lastScanned
-        - assetVulnerabilityDetails
       properties:
         id:
           type: integer
@@ -127,7 +126,6 @@ components:
         - id
         - hostname
         - lastScanned
-        - assetVulnerabilityDetails
       properties:
         id:
           type: integer
@@ -149,8 +147,6 @@ components:
             $ref: '#/components/schemas/AssetVulnerabilityDetails'
     AssetVulnerabilityDetails:
       type: object
-      required:
-        - id
       properties:
         id:
           type: string
@@ -194,9 +190,6 @@ components:
           description: Solutions for remediation of the vulnerability.
     AssessmentResult:
       type: object
-      required:
-        - port
-        - protocol
       properties:
         port:
           type: integer
@@ -207,18 +200,6 @@ components:
           type: string
           example: tcp
           description: The protocol of the service the result was discovered on.
-          enum:
-            - ip
-            - icmp
-            - igmp
-            - ggp
-            - tcp
-            - pup
-            - udp
-            - idp
-            - esp
-            - nd
-            - raw
     Error:
       type: object
       properties:
