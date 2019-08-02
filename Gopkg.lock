@@ -269,7 +269,7 @@
   version = "v1.12.0"
 
 [[projects]]
-  digest = "1:825c58ea9cba72fdffb1c7b8c1bbd7ceab46e94aa305820dddb9251b5f233d14"
+  digest = "1:46d61dde730f65b86a31e9b06026a76a6b44744637b879f572b1d4f9dc5c9ca8"
   name = "github.com/aws/aws-sdk-go"
   packages = [
     "aws",
@@ -323,8 +323,8 @@
     "service/sts/stsiface",
   ]
   pruneopts = "UT"
-  revision = "b024dccbed5bf4ecdf4718113f282c0ef972a776"
-  version = "v1.21.8"
+  revision = "f3fe96892dc0e8e8e9862456e1455e62e4cb55d4"
+  version = "v1.21.9"
 
 [[projects]]
   digest = "1:4934e5e39af906e43f90db046ef879b3867868ebc552f227cebefd0f5997e195"
@@ -345,8 +345,8 @@
   name = "github.com/beorn7/perks"
   packages = ["quantile"]
   pruneopts = "UT"
-  revision = "4b2b341e8d7715fae06375aa633dbb6e91b3fb46"
-  version = "v1.0.0"
+  revision = "37c8de3658fcb183f997c4e13e8337516ab753e6"
+  version = "v1.0.1"
 
 [[projects]]
   branch = "master"
@@ -740,15 +740,15 @@
   version = "v1.0.0"
 
 [[projects]]
-  digest = "1:deaa16d7af744e4d151c4d232dda2578e6ae9c4732a210f9a018012d3fdf654c"
+  digest = "1:b5e6db1f0095a7427712ba7f5890d6c0cb6b61d6f9d76bc5a4e3d2344461e652"
   name = "github.com/pierrec/lz4"
   packages = [
     ".",
     "internal/xxh32",
   ]
   pruneopts = "UT"
-  revision = "377214e3044ff9f12d996f3037fb8c3e3ad16b49"
-  version = "v2.2.5"
+  revision = "8ef35db8296124c4969aab929c16c91c3cb2c8a0"
+  version = "v2.2.6"
 
 [[projects]]
   digest = "1:cf31692c14422fa27c83a05292eb5cbe0fb2775972e8f1f8446a71549bd8980b"
@@ -767,7 +767,7 @@
   version = "v1.0.0"
 
 [[projects]]
-  digest = "1:82f6ed36dc05cd059b5a6818978306f616c7b1ed64638c2911d3f451ca424e74"
+  digest = "1:ede88c7e83d16aa9c8e4c86cc6e8edb90b8a8d4fae480f9d25c032c7c2445314"
   name = "github.com/prometheus/client_golang"
   packages = [
     "prometheus",
@@ -776,8 +776,8 @@
     "prometheus/push",
   ]
   pruneopts = "UT"
-  revision = "4ab88e80c249ed361d3299e2930427d9ac43ef8d"
-  version = "v1.0.0"
+  revision = "170205fb58decfd011f1550d4cfb737230d7ae4f"
+  version = "v1.1.0"
 
 [[projects]]
   branch = "master"
@@ -1033,14 +1033,14 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:6f4db4018547b0c19aa51a66ea3a5eed800cc5e2de9df6490a37b14d06155f22"
+  digest = "1:16c3c95c0f98e5bff7c863065da66f1e747bced6f101281c041060830842ebc1"
   name = "golang.org/x/sys"
   packages = [
     "unix",
     "windows",
   ]
   pruneopts = "UT"
-  revision = "1393eb0183657fb29200106b17a5042ec6e48dbe"
+  revision = "cbf593c0f2f39034e9104bbf77e2ec7c48c98fc5"
 
 [[projects]]
   digest = "1:8d8faad6b12a3a4c819a3f9618cb6ee1fa1cfc33253abeeea8b55336721e3405"
@@ -1120,7 +1120,7 @@
     "protobuf/field_mask",
   ]
   pruneopts = "UT"
-  revision = "c506a9f9061087022822e8da603a52fc387115a8"
+  revision = "fa694d86fc64c7654a660f8908de4e879866748d"
 
 [[projects]]
   digest = "1:01b9d0e52a1c429a4654d90fe3ddd9711b743469869284bffb1c949200c14cdc"
