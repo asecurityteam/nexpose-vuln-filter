@@ -1,7 +1,7 @@
 openapi: 3.0.0
 x-runtime:
   httpserver:
-    address: ":8082"
+    address: ":${PORTS_GATEWAY_OUTGOING}"
   logger:
     level: "${SERVERFULL_RUNTIME_LOGGER_LEVEL}"
     output: "${SERVERFULL_RUNTIME_LOGGER_OUTPUT}"
@@ -47,7 +47,7 @@ info:
     name: Apache 2.0
     url: 'https://www.apache.org/licenses/LICENSE-2.0.html'
 paths:
-/publish:
+  /publish:
     post:
       description: Publish a filtered asset vulnerabilities event to an HTTP queue.
       requestBody:
