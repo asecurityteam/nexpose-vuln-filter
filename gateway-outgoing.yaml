@@ -1,15 +1,16 @@
 openapi: 3.0.0
 x-runtime:
   httpserver:
-    address: ":8082"
+    address: ":${PORTS_GATEWAY_OUTGOING}"
   logger:
-    level: "INFO"
-    output: "STDOUT"
+    level: "${SERVERFULL_RUNTIME_LOGGER_LEVEL}"
+    output: "${SERVERFULL_RUNTIME_LOGGER_OUTPUT}"
   stats:
-    output: "DATADOG"
+    output: "${SERVERFULL_RUNTIME_STATS_OUTPUT}"
     datadog:
-      address: "statsd:8125"
-      flushinterval: "10s"
+      address: "${SERVERFULL_RUNTIME_STATS_DATADOG_ADDRESS}"
+      flushinterval: "${SERVERFULL_RUNTIME_STATS_DATADOG_FLUSHINTERVAL}"
+      tags: "${SERVERFULL_RUNTIME_STATS_DATADOG_TAGS}"
   signals:
     installed:
       - "OS"
@@ -46,7 +47,7 @@ info:
     name: Apache 2.0
     url: 'https://www.apache.org/licenses/LICENSE-2.0.html'
 paths:
-/publish:
+  /publish:
     post:
       description: Publish a filtered asset vulnerabilities event to an HTTP queue.
       requestBody:
@@ -100,7 +101,6 @@ components:
         - id
         - ip
         - lastScanned
-        - assetVulnerabilityDetails
       properties:
         id:
           type: integer
@@ -126,7 +126,6 @@ components:
         - id
         - hostname
         - lastScanned
-        - assetVulnerabilityDetails
       properties:
         id:
           type: integer
@@ -148,8 +147,6 @@ components:
             $ref: '#/components/schemas/AssetVulnerabilityDetails'
     AssetVulnerabilityDetails:
       type: object
-      required:
-        - id
       properties:
         id:
           type: string
@@ -193,9 +190,6 @@ components:
           description: Solutions for remediation of the vulnerability.
     AssessmentResult:
       type: object
-      required:
-        - port
-        - protocol
       properties:
         port:
           type: integer
@@ -206,18 +200,6 @@ components:
           type: string
           example: tcp
           description: The protocol of the service the result was discovered on.
-          enum:
-            - ip
-            - icmp
-            - igmp
-            - ggp
-            - tcp
-            - pup
-            - udp
-            - idp
-            - esp
-            - nd
-            - raw
     Error:
       type: object
       properties:

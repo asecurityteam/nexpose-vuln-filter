@@ -3,13 +3,14 @@ x-runtime:
   httpserver:
     address: ":8080"
   logger:
-    level: "INFO"
-    output: "STDOUT"
+    level: "${SERVERFULL_RUNTIME_LOGGER_LEVEL}"
+    output: "${SERVERFULL_RUNTIME_LOGGER_OUTPUT}"
   stats:
-    output: "DATADOG"
+    output: "${SERVERFULL_RUNTIME_STATS_OUTPUT}"
     datadog:
-      address: "statsd:8125"
-      flushinterval: "10s"
+      address: "${SERVERFULL_RUNTIME_STATS_DATADOG_ADDRESS}"
+      flushinterval: "${SERVERFULL_RUNTIME_STATS_DATADOG_FLUSHINTERVAL}"
+      tags: "${SERVERFULL_RUNTIME_STATS_DATADOG_TAGS}"
   signals:
     installed:
       - "OS"
@@ -97,7 +98,6 @@ components:
         - id
         - ip
         - lastScanned
-        - assetVulnerabilityDetails
       properties:
         id:
           type: integer
@@ -123,7 +123,6 @@ components:
         - id
         - hostname
         - lastScanned
-        - assetVulnerabilityDetails
       properties:
         id:
           type: integer
@@ -145,8 +144,6 @@ components:
             $ref: '#/components/schemas/AssetVulnerabilityDetails'
     AssetVulnerabilityDetails:
       type: object
-      required:
-        - id
       properties:
         id:
           type: string
@@ -190,9 +187,6 @@ components:
           description: Solutions for remediation of the vulnerability.
     AssessmentResult:
       type: object
-      required:
-        - port
-        - protocol
       properties:
         port:
           type: integer
@@ -203,15 +197,3 @@ components:
           type: string
           example: tcp
           description: The protocol of the service the result was discovered on.
-          enum:
-            - ip
-            - icmp
-            - igmp
-            - ggp
-            - tcp
-            - pup
-            - udp
-            - idp
-            - esp
-            - nd
-            - raw
