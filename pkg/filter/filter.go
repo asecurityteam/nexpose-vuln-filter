@@ -12,6 +12,7 @@ import (
 const (
 	invulnerable string = "invulnerable"
 	noResults    string = "no-results"
+	unknown      string = "unknown"
 )
 
 // VulnerabilityFilterConfig defines the configuration options for a VulnerabilityFilter.
@@ -75,14 +76,22 @@ func (f VulnerabilityFilter) FilterVulnerabilities(ctx context.Context, asset do
 	filteredVulnerabilities := make([]domain.Vulnerability, 0)
 	for _, vuln := range vulnerabilities {
 		switch {
-		case vuln.Status == invulnerable || vuln.Status == noResults:
+		case vuln.Status == invulnerable:
 			logger.Info(logs.VulnerabilityFiltered{
 				Action:  logs.VulnDiscarded,
 				VulnID:  vuln.ID,
 				AssetID: asset.ID,
 				Status:  vuln.Status,
 			})
-			stater.Count("event.nexposevulnerability.filter.discarded", 1, fmt.Sprintf("reason:%s", "status"))
+			stater.Count("event.nexposevulnerability.filter.discarded", 1, fmt.Sprintf("reason:%s", invulnerable))
+		case vuln.Status == noResults:
+			logger.Info(logs.VulnerabilityFiltered{
+				Action:  logs.VulnDiscarded,
+				VulnID:  vuln.ID,
+				AssetID: asset.ID,
+				Status:  vuln.Status,
+			})
+			stater.Count("event.nexposevulnerability.filter.discarded", 1, fmt.Sprintf("reason:%s", noResults))
 		case vuln.CvssV2Score > f.CVSSV2MinimumScore:
 			filteredVulnerabilities = append(filteredVulnerabilities, vuln)
 			logger.Info(logs.VulnerabilityFiltered{
@@ -110,7 +119,7 @@ func (f VulnerabilityFilter) FilterVulnerabilities(ctx context.Context, asset do
 				AssetID: asset.ID,
 				Status:  vuln.Status,
 			})
-			stater.Count("event.nexposevulnerability.filter.discarded", 1, fmt.Sprintf("reason:%s", "default"))
+			stater.Count("event.nexposevulnerability.filter.discarded", 1, fmt.Sprintf("reason:%s", unknown))
 		}
 	}
 	return filteredVulnerabilities

@@ -160,7 +160,7 @@ components:
         status:
           type: string
           example: vulnerable
-          description: variable to filter on
+          description: status of a vulnerability, can be used to filter on
         cvssV2Score:
           type: number
           format: double

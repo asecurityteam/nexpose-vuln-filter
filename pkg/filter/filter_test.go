@@ -98,18 +98,18 @@ func TestFilterVulnerabilities(t *testing.T) {
 		{
 			"filters out vulnerabilities that have bad status",
 			7.0,
-			"test-vuln-.*",
+			"bad-vuln-.*",
 			[]domain.Vulnerability{
 				domain.Vulnerability{
-					ID:          "bad-vuln-1",
+					ID:          "test-vuln-1",
 					CvssV2Score: 8.0,
 					Status:      "invulnerable",
 				},
-				// domain.Vulnerability{
-				// 	ID:          "test-vuln-1",
-				// 	CvssV2Score: 8.0,
-				// 	Status:      "no-results",
-				// },
+				domain.Vulnerability{
+					ID:          "test-vuln-1",
+					CvssV2Score: 8.0,
+					Status:      "no-results",
+				},
 			},
 			[]domain.Vulnerability{},
 		},
