@@ -9,6 +9,11 @@ import (
 	"github.com/asecurityteam/nexpose-vuln-filter/pkg/logs"
 )
 
+const (
+	invulnerable string = "invulnerable"
+	noResults    string = "no-results"
+)
+
 // VulnerabilityFilterConfig defines the configuration options for a VulnerabilityFilter.
 type VulnerabilityFilterConfig struct {
 	CVSSV2MinimumScore float64 `description:"The minimum CVSS V2 score threshold for vulnerabilties to further process."`
@@ -70,6 +75,14 @@ func (f VulnerabilityFilter) FilterVulnerabilities(ctx context.Context, asset do
 	filteredVulnerabilities := make([]domain.Vulnerability, 0)
 	for _, vuln := range vulnerabilities {
 		switch {
+		case vuln.Status == invulnerable || vuln.Status == noResults:
+			logger.Info(logs.VulnerabilityFiltered{
+				Action:  logs.VulnDiscarded,
+				VulnID:  vuln.ID,
+				AssetID: asset.ID,
+				Status:  vuln.Status,
+			})
+			stater.Count("event.nexposevulnerability.filter.discarded", 1, fmt.Sprintf("reason:%s", "status"))
 		case vuln.CvssV2Score > f.CVSSV2MinimumScore:
 			filteredVulnerabilities = append(filteredVulnerabilities, vuln)
 			logger.Info(logs.VulnerabilityFiltered{
@@ -90,14 +103,6 @@ func (f VulnerabilityFilter) FilterVulnerabilities(ctx context.Context, asset do
 				Status:  vuln.Status,
 			})
 			stater.Count("event.nexposevulnerability.filter.accepted", 1)
-		case vuln.Status == "invulnerable" || vuln.Status == "no-results":
-			logger.Info(logs.VulnerabilityFiltered{
-				Action:  logs.VulnDiscarded,
-				VulnID:  vuln.ID,
-				AssetID: asset.ID,
-				Status:  vuln.Status,
-			})
-			stater.Count("event.nexposevulnerability.filter.discarded", 1, fmt.Sprintf("reason:%s", "status"))
 		default:
 			logger.Info(logs.VulnerabilityFiltered{
 				Action:  logs.VulnDiscarded,
