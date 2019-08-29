@@ -2,6 +2,7 @@ package filter
 
 import (
 	"context"
+	"fmt"
 	"regexp"
 
 	"github.com/asecurityteam/nexpose-vuln-filter/pkg/domain"
@@ -76,6 +77,7 @@ func (f VulnerabilityFilter) FilterVulnerabilities(ctx context.Context, asset do
 				Method:  logs.CvssV2Score,
 				VulnID:  vuln.ID,
 				AssetID: asset.ID,
+				Status:  vuln.Status,
 			})
 			stater.Count("event.nexposevulnerability.filter.accepted", 1)
 		case f.VulnIDRegexp.MatchString(vuln.ID):
@@ -85,15 +87,25 @@ func (f VulnerabilityFilter) FilterVulnerabilities(ctx context.Context, asset do
 				Method:  logs.VulnID,
 				VulnID:  vuln.ID,
 				AssetID: asset.ID,
+				Status:  vuln.Status,
 			})
 			stater.Count("event.nexposevulnerability.filter.accepted", 1)
+		case vuln.Status == "invulnerable" || vuln.Status == "no-results":
+			logger.Info(logs.VulnerabilityFiltered{
+				Action:  logs.VulnDiscarded,
+				VulnID:  vuln.ID,
+				AssetID: asset.ID,
+				Status:  vuln.Status,
+			})
+			stater.Count("event.nexposevulnerability.filter.discarded", 1, fmt.Sprintf("reason:%s", "status"))
 		default:
 			logger.Info(logs.VulnerabilityFiltered{
 				Action:  logs.VulnDiscarded,
 				VulnID:  vuln.ID,
 				AssetID: asset.ID,
+				Status:  vuln.Status,
 			})
-			stater.Count("event.nexposevulnerability.filter.discarded", 1)
+			stater.Count("event.nexposevulnerability.filter.discarded", 1, fmt.Sprintf("reason:%s", "default"))
 		}
 	}
 	return filteredVulnerabilities

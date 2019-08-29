@@ -157,6 +157,10 @@ components:
             independent results.
           items:
             $ref: '#/components/schemas/AssessmentResult'
+        status:
+          type: string
+          example: vulnerable
+          description: variable to filter on
         cvssV2Score:
           type: number
           format: double

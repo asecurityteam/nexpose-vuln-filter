@@ -21,6 +21,7 @@ type NexposeAssetVulnerabilitiesEvent struct {
 type AssetVulnerabilityDetails struct {
 	ID             string             `json:"id"`
 	Results        []AssessmentResult `json:"results"`
+	Status         string             `json:"status"`
 	CvssV2Score    float64            `json:"cvssV2Score"`
 	CvssV2Severity string             `json:"cvssV2Severity"`
 	Description    string             `json:"description"`
@@ -102,6 +103,7 @@ func vulnToVulnDetails(vulns []domain.Vulnerability) []AssetVulnerabilityDetails
 		vulnDetails[vulnOffset] = AssetVulnerabilityDetails{
 			ID:             vuln.ID,
 			Results:        results,
+			Status:         vuln.Status,
 			CvssV2Score:    vuln.CvssV2Score,
 			CvssV2Severity: vuln.CvssV2Severity,
 			Description:    vuln.Description,
