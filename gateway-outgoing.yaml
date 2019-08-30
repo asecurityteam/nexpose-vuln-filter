@@ -45,7 +45,7 @@ info:
     email: secdev-external@atlassian.com
   license:
     name: Apache 2.0
-    url: 'https://www.apache.org/licenses/LICENSE-2.0.html'
+    url: "https://www.apache.org/licenses/LICENSE-2.0.html"
 paths:
   /publish:
     post:
@@ -57,8 +57,8 @@ paths:
             schema:
               anyOf:
                 # an asset needs either a hostname OR an IP (or both)
-                - $ref: '#/components/schemas/AssetVulnerabilitiesEventWithIP'
-                - $ref: '#/components/schemas/AssetVulnerabilitiesEventWithHostname'
+                - $ref: "#/components/schemas/AssetVulnerabilitiesEventWithIP"
+                - $ref: "#/components/schemas/AssetVulnerabilitiesEventWithHostname"
       responses:
         "200":
           description: "Success"
@@ -67,7 +67,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
       x-transportd:
         backend: queue
         enabled:
@@ -119,7 +119,7 @@ components:
           type: array
           description: List of vulnerabilities found on the asset.
           items:
-            $ref: '#/components/schemas/AssetVulnerabilityDetails'
+            $ref: "#/components/schemas/AssetVulnerabilityDetails"
     AssetVulnerabilitiesEventWithHostname:
       type: object
       required:
@@ -144,7 +144,7 @@ components:
           type: array
           description: List of vulnerabilities found on the asset.
           items:
-            $ref: '#/components/schemas/AssetVulnerabilityDetails'
+            $ref: "#/components/schemas/AssetVulnerabilityDetails"
     AssetVulnerabilityDetails:
       type: object
       properties:
@@ -159,12 +159,16 @@ components:
             may be present if one or more checks fired, or a check has multiple
             independent results.
           items:
-            $ref: '#/components/schemas/AssessmentResult'
+            $ref: "#/components/schemas/AssessmentResult"
+        status:
+          type: string
+          example: vulnerable
+          description: status of a vulnerability, can be used to filter on
         cvssV2Score:
           type: number
           format: double
           example: 4.4
-          description: 'The CVSS V2 score, which ranges from 0-10.'
+          description: "The CVSS V2 score, which ranges from 0-10."
         cvssV2Severity:
           type: string
           example: Severe
