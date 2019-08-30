@@ -18,6 +18,7 @@ type Asset struct {
 type Vulnerability struct {
 	ID             string
 	Results        []AssessmentResult
+	Status         string
 	CvssV2Score    float64
 	CvssV2Severity string
 	Description    string

@@ -17,4 +17,5 @@ type VulnerabilityFiltered struct {
 	Method  string `logevent:"method,default=n/a"`
 	VulnID  string `logevent:"vuln_id"`
 	AssetID int64  `logevent:"asset_id"`
+	Status  string `logevent:"status"`
 }
