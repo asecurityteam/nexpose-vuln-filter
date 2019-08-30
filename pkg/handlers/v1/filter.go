@@ -83,6 +83,7 @@ func vulnDetailsToVuln(vulnDetails []AssetVulnerabilityDetails) []domain.Vulnera
 		vulns[vulnOffset] = domain.Vulnerability{
 			ID:             vulnDetail.ID,
 			Results:        results,
+			Status:         vulnDetail.Status,
 			CvssV2Score:    vulnDetail.CvssV2Score,
 			CvssV2Severity: vulnDetail.CvssV2Severity,
 			Description:    vulnDetail.Description,
