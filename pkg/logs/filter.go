@@ -13,6 +13,7 @@ const (
 
 // VulnerabilityFiltered contains details on the filtering of an asset's vulnerabilities
 type VulnerabilityFiltered struct {
+	Message string `logevent:"message,default=vulnerability-filtered"`
 	Action  string `logevent:"action"`
 	Method  string `logevent:"method,default=n/a"`
 	VulnID  string `logevent:"vuln_id"`
