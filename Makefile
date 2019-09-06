@@ -5,7 +5,7 @@ dep:
 	docker run -ti \
         --mount src="$(DIR)",target="$(DIR)",type="bind" \
         -w "$(DIR)" \
-		-e "GOPROXY=https://gocenter.io" \
+        -e "GOPROXY=https://gocenter.io" \
         asecurityteam/sdcli:v1 go dep
 
 lint:
