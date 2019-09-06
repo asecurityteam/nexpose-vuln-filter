@@ -11,6 +11,7 @@ require (
 	github.com/Microsoft/go-winio v0.4.13 // indirect
 	github.com/OneOfOne/xxhash v1.2.5 // indirect
 	github.com/Shopify/sarama v1.23.1 // indirect
+	github.com/andreyvit/diff v0.0.0-20170406064948-c7f18ee00883 // indirect
 	github.com/asecurityteam/component-connstate v0.1.1 // indirect
 	github.com/asecurityteam/component-expvar v0.1.0 // indirect
 	github.com/asecurityteam/component-httpclient v0.1.0 // indirect
@@ -29,10 +30,10 @@ require (
 	github.com/aws/aws-sdk-go v1.21.9 // indirect
 	github.com/benhoyt/goawk v1.6.0 // indirect
 	github.com/bradfitz/gomemcache v0.0.0-20190329173943-551aad21a668 // indirect
-	github.com/cenkalti/backoff/v3 v3.0.0 // indirect
 	github.com/eapache/go-resiliency v1.2.0 // indirect
 	github.com/eclipse/paho.mqtt.golang v1.2.0 // indirect
 	github.com/fatih/structs v1.1.0 // indirect
+	github.com/frankban/quicktest v1.4.2 // indirect
 	github.com/getkin/kin-openapi v0.0.0-20190729060947-8785b416cb32 // indirect
 	github.com/go-chi/chi v3.3.4+incompatible // indirect
 	github.com/go-yaml/yaml v2.1.0+incompatible // indirect
@@ -41,11 +42,11 @@ require (
 	github.com/gorilla/mux v1.7.3 // indirect
 	github.com/hashicorp/golang-lru v0.5.3 // indirect
 	github.com/jcmturner/gofork v1.0.0 // indirect
+	github.com/justinas/alice v0.0.0-20171023064455-03f45bd4b7da // indirect
 	github.com/lib/pq v1.2.0 // indirect
 	github.com/mailru/easyjson v0.0.0-20190626092158-b2ccc519800e // indirect
-	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
-	github.com/modern-go/reflect2 v1.0.1 // indirect
 	github.com/nats-io/go-nats-streaming v0.4.4 // indirect
+	github.com/nats-io/nats-server v1.4.1 // indirect
 	github.com/nats-io/nkeys v0.1.0 // indirect
 	github.com/nats-io/nuid v1.0.1 // indirect
 	github.com/olivere/elastic v6.2.21+incompatible // indirect
@@ -55,7 +56,9 @@ require (
 	github.com/pierrec/lz4 v2.2.6+incompatible // indirect
 	github.com/prometheus/client_golang v1.1.0 // indirect
 	github.com/rcrowley/go-metrics v0.0.0-20190706150252-9beb055b7962 // indirect
+	github.com/rs/cors v1.7.0 // indirect
 	github.com/rs/xhandler v0.0.0-20151224012956-d9d9599b6aaf // indirect
+	github.com/rs/xlog v0.0.0-20171227185259-131980fab91b // indirect
 	github.com/rs/xstats v0.0.0-20170813190920-c67367528e16 // indirect
 	github.com/rs/zerolog v1.14.3 // indirect
 	github.com/streadway/amqp v0.0.0-20190404075320-75d898a42a94 // indirect
@@ -65,6 +68,7 @@ require (
 	golang.org/x/net v0.0.0-20190724013045-ca1201d0de80 // indirect
 	google.golang.org/genproto v0.0.0-20190801165951-fa694d86fc64 // indirect
 	google.golang.org/grpc v1.22.1 // indirect
+	gopkg.in/jcmturner/goidentity.v3 v3.0.0 // indirect
 	gopkg.in/jcmturner/gokrb5.v7 v7.3.0 // indirect
 	gopkg.in/yaml.v3 v3.0.0-20190709130402-674ba3eaed22 // indirect
 )
