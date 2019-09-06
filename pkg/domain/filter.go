@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-// Asset contains the key fields from a Nexpose asset
+// Asset contains the key fields from a Nexpose asset.
 type Asset struct {
 	LastScanned time.Time
 	Hostname    string
@@ -14,7 +14,7 @@ type Asset struct {
 }
 
 // Vulnerability contains the key fields from a Nexpose vulnerability associated with a
-// particular Asset
+// particular Asset.
 type Vulnerability struct {
 	ID             string
 	Results        []AssessmentResult
@@ -26,13 +26,13 @@ type Vulnerability struct {
 	Solutions      []string
 }
 
-// AssessmentResult contains port and protocol information for the Vulnerability
+// AssessmentResult contains port and protocol information for the Vulnerability.
 type AssessmentResult struct {
 	Port     int
 	Protocol string
 }
 
-// VulnerabilityFilter is an interface for filtering an asset's vulnerabilities based on configurable criteria
+// VulnerabilityFilter is an interface for filtering an asset's vulnerabilities based on configurable criteria.
 type VulnerabilityFilter interface {
 	FilterVulnerabilities(context.Context, Asset, []Vulnerability) []Vulnerability
 }

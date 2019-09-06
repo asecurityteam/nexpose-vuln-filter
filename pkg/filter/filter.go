@@ -59,7 +59,7 @@ func (v *VulnerabilityFilterComponent) New(_ context.Context, c *VulnerabilityFi
 	}, nil
 }
 
-// VulnerabilityFilter implements the VulnerabilityFilter interface
+// VulnerabilityFilter implements the VulnerabilityFilter interface.
 type VulnerabilityFilter struct {
 	CVSSV2MinimumScore float64
 	VulnIDRegexp       *regexp.Regexp
@@ -95,7 +95,7 @@ func (f VulnerabilityFilter) FilterVulnerabilities(ctx context.Context, asset do
 		case vuln.CvssV2Score > f.CVSSV2MinimumScore:
 			filteredVulnerabilities = append(filteredVulnerabilities, vuln)
 			logger.Info(logs.VulnerabilityFiltered{
-				Action:  logs.VulnRetained,
+				Action:  logs.VulnAccepted,
 				Method:  logs.CvssV2Score,
 				VulnID:  vuln.ID,
 				AssetID: asset.ID,
@@ -105,7 +105,7 @@ func (f VulnerabilityFilter) FilterVulnerabilities(ctx context.Context, asset do
 		case f.VulnIDRegexp.MatchString(vuln.ID):
 			filteredVulnerabilities = append(filteredVulnerabilities, vuln)
 			logger.Info(logs.VulnerabilityFiltered{
-				Action:  logs.VulnRetained,
+				Action:  logs.VulnAccepted,
 				Method:  logs.VulnID,
 				VulnID:  vuln.ID,
 				AssetID: asset.ID,

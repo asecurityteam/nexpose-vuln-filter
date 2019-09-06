@@ -8,7 +8,7 @@ import (
 )
 
 // NexposeAssetVulnerabilitiesEvent is a Nexpose asset response payload appended
-// with assetVulnerabilityDetails
+// with assetVulnerabilityDetails.
 type NexposeAssetVulnerabilitiesEvent struct {
 	LastScanned     time.Time                   `json:"lastScanned"`
 	Hostname        string                      `json:"hostname"`
@@ -17,7 +17,7 @@ type NexposeAssetVulnerabilitiesEvent struct {
 	Vulnerabilities []AssetVulnerabilityDetails `json:"assetVulnerabilityDetails"`
 }
 
-// AssetVulnerabilityDetails contains the vulnerability information
+// AssetVulnerabilityDetails contains the vulnerability information.
 type AssetVulnerabilityDetails struct {
 	ID             string             `json:"id"`
 	Results        []AssessmentResult `json:"results"`
@@ -29,7 +29,7 @@ type AssetVulnerabilityDetails struct {
 	Solutions      []string           `json:"solutions"`
 }
 
-// AssessmentResult contains port and protocol information for the vulnerability
+// AssessmentResult contains port and protocol information for the vulnerability.
 type AssessmentResult struct {
 	Port     int    `json:"port"`
 	Protocol string `json:"protocol"`
@@ -37,7 +37,7 @@ type AssessmentResult struct {
 
 // FilterHandler accepts a payload with Nexpose asset information
 // and a list of vulnerabilities and returns a payload of the same shape
-// omitting vulnerabilities that do not meet the filter criteria
+// omitting vulnerabilities that do not meet the filter criteria.
 type FilterHandler struct {
 	VulnerabilityFilter domain.VulnerabilityFilter
 	Producer            domain.Producer
