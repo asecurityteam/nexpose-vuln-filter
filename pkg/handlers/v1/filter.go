@@ -33,6 +33,7 @@ type AssetVulnerabilityDetails struct {
 type AssessmentResult struct {
 	Port     int    `json:"port"`
 	Protocol string `json:"protocol"`
+	Proof    string `json:"proof"`
 }
 
 // FilterHandler accepts a payload with Nexpose asset information

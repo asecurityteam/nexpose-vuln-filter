@@ -30,6 +30,7 @@ type Vulnerability struct {
 type AssessmentResult struct {
 	Port     int
 	Protocol string
+	Proof    string
 }
 
 // VulnerabilityFilter is an interface for filtering an asset's vulnerabilities based on configurable criteria.
