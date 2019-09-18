@@ -142,6 +142,7 @@ func TestVulnDetailsToVuln(t *testing.T) {
 						AssessmentResult{
 							Port:     80,
 							Protocol: "HTTP",
+							Proof:    "This is proof.",
 						},
 					},
 				},
@@ -153,6 +154,7 @@ func TestVulnDetailsToVuln(t *testing.T) {
 						domain.AssessmentResult{
 							Port:     80,
 							Protocol: "HTTP",
+							Proof:    "This is proof.",
 						},
 					},
 				},
@@ -203,6 +205,7 @@ func TestVulnToVulnDetails(t *testing.T) {
 						domain.AssessmentResult{
 							Port:     80,
 							Protocol: "HTTP",
+							Proof:    "This is proof.",
 						},
 					},
 				},
@@ -214,6 +217,7 @@ func TestVulnToVulnDetails(t *testing.T) {
 						AssessmentResult{
 							Port:     80,
 							Protocol: "HTTP",
+							Proof:    "This is proof.",
 						},
 					},
 				},

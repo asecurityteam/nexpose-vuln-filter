@@ -204,6 +204,9 @@ components:
           type: string
           example: tcp
           description: The protocol of the service the result was discovered on.
+        proof:
+          type: string
+          description: The proof explaining why the result was found vulnerable.
     Error:
       type: object
       properties:
