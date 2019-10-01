@@ -74,3 +74,5 @@ require (
 	gopkg.in/jcmturner/gokrb5.v7 v7.3.0 // indirect
 	gopkg.in/yaml.v3 v3.0.0-20190709130402-674ba3eaed22 // indirect
 )
+
+replace github.com/uber/jaeger-lib v1.5.0+incompatible => github.com/uber/jaeger-lib v1.5.0
