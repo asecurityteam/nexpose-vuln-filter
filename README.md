@@ -1,6 +1,8 @@
 <a id="markdown-Nexpose Vulnerability Filter" name="nexpose-vuln-filter"></a>
 # Nexpose Vulnerability Filter
 
+[![GoDoc](https://godoc.org/github.com/asecurityteam/nexpose-vuln-filter?status.svg)](https://godoc.org/github.com/asecurityteam/nexpose-vuln-filter)
+
 Nexpose Vulnerability Filter uses filters based on CVSS score and regular expressions to add or remove vulnerabilities from an asset for further processing by the pipeline.
 
 <https://github.com/asecurityteam/nexpose-vuln-filter>
