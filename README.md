@@ -2,6 +2,8 @@
 # Nexpose Vulnerability Filter
 
 [![GoDoc](https://godoc.org/github.com/asecurityteam/nexpose-vuln-filter?status.svg)](https://godoc.org/github.com/asecurityteam/nexpose-vuln-filter)
+[![Build Status](https://travis-ci.org/asecurityteam/nexpose-vuln-filter.png?branch=master)](https://travis-ci.org/asecurityteam/nexpose-vuln-filter)
+[![codecov.io](https://codecov.io/github/asecurityteam/nexpose-vuln-filter/coverage.svg?branch=master)](https://codecov.io/github/asecurityteam/nexpose-vuln-filter?branch=master)
 
 Nexpose Vulnerability Filter uses filters based on CVSS score and regular expressions to add or remove vulnerabilities from an asset for further processing by the pipeline.
 
