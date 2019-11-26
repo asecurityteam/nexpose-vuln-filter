@@ -10,7 +10,7 @@ import (
 // NexposeAssetVulnerabilitiesEvent is a Nexpose asset response payload appended
 // with assetVulnerabilityDetails.
 type NexposeAssetVulnerabilitiesEvent struct {
-	LastScanned     time.Time                   `json:"lastScanned"`
+	ScanTime        time.Time                   `json:"scanTime"`
 	Hostname        string                      `json:"hostname"`
 	ID              int64                       `json:"id"`
 	IP              string                      `json:"ip"`
@@ -51,17 +51,17 @@ type FilterHandler struct {
 // and returns the filtered AssetVulnerabilityDetailsEvent, or an error if one occurred.
 func (h FilterHandler) Handle(ctx context.Context, input NexposeAssetVulnerabilitiesEvent) (NexposeAssetVulnerabilitiesEvent, error) {
 	asset := domain.Asset{
-		ID:          input.ID,
-		IP:          input.IP,
-		Hostname:    input.Hostname,
-		LastScanned: input.LastScanned,
+		ID:       input.ID,
+		IP:       input.IP,
+		Hostname: input.Hostname,
+		ScanTime: input.ScanTime,
 	}
 	vulns := vulnDetailsToVuln(input.Vulnerabilities)
 	vulns = h.VulnerabilityFilter.FilterVulnerabilities(ctx, asset, vulns)
 	vulnDetails := vulnToVulnDetails(vulns)
 
 	filteredAssetVulnEvent := NexposeAssetVulnerabilitiesEvent{
-		LastScanned:     input.LastScanned,
+		ScanTime:        input.ScanTime,
 		Hostname:        input.Hostname,
 		ID:              input.ID,
 		IP:              input.IP,
