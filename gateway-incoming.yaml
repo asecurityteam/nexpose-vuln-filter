@@ -97,7 +97,6 @@ components:
       required:
         - id
         - ip
-        - scanTime
       properties:
         id:
           type: integer
@@ -112,6 +111,10 @@ components:
           type: string
           format: date-time
           description: The time the asset was scanned in ISO8601 format.
+        lastScanned:
+          type: string
+          format: date-time
+          description: The time the asset was scanned in ISO8601 format.
         assetVulnerabilityDetails:
           type: array
           description: List of vulnerabilities found on the asset.
@@ -122,7 +125,6 @@ components:
       required:
         - id
         - hostname
-        - scanTime
       properties:
         id:
           type: integer
@@ -134,6 +136,10 @@ components:
           example: corporate-workstation-1102DC.acme.com
           description: The primary host name (local or FQDN) of the asset.
         scanTime:
+          type: string
+          format: date-time
+          description: The time the asset was scanned in ISO8601 format.
+        lastScanned:
           type: string
           format: date-time
           description: The time the asset was scanned in ISO8601 format.
