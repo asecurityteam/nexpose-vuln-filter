@@ -7,6 +7,7 @@ import (
 
 // Asset contains the key fields from a Nexpose asset.
 type Asset struct {
+	ScanTime    time.Time
 	LastScanned time.Time
 	Hostname    string
 	ID          int64
