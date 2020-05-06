@@ -189,6 +189,10 @@ components:
           items:
             type: string
           description: Solutions for remediation of the vulnerability.
+        localCheck:
+          type: boolean
+          example: false
+          description: Whether this vulnerability was detected by a local, authenticated agent.
     AssessmentResult:
       type: object
       properties:

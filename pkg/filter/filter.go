@@ -17,8 +17,9 @@ const (
 
 // VulnerabilityFilterConfig defines the configuration options for a VulnerabilityFilter.
 type VulnerabilityFilterConfig struct {
-	CVSSV2MinimumScore float64 `description:"The minimum CVSS V2 score threshold for vulnerabilties to further process."`
-	VulnIDRegexMatch   string  `description:"A regex to match the vulnerability ID to include for further processing."`
+	CVSSV2MinimumScore  float64 `description:"The minimum CVSS V2 score threshold for vulnerabilties to further process."`
+	VulnIDRegexMatch    string  `description:"A regex to match the vulnerability ID to include for further processing."`
+	AllowAllLocalChecks bool    `description:"A boolean of whether to allow all local, authenticated checks to pass through the filter, regardless of CVSS V2 score."`
 }
 
 // Name is used by the settings library to replace the default naming convention.
@@ -39,8 +40,9 @@ func NewVulnerabilityFilterComponent() *VulnerabilityFilterComponent {
 // if none are provided via config.
 func (v *VulnerabilityFilterComponent) Settings() *VulnerabilityFilterConfig {
 	return &VulnerabilityFilterConfig{
-		CVSSV2MinimumScore: 7.0,
-		VulnIDRegexMatch:   ".*",
+		CVSSV2MinimumScore:  7.0,
+		VulnIDRegexMatch:    ".*",
+		AllowAllLocalChecks: true,
 	}
 }
 
@@ -52,19 +54,21 @@ func (v *VulnerabilityFilterComponent) New(_ context.Context, c *VulnerabilityFi
 	}
 
 	return &VulnerabilityFilter{
-		CVSSV2MinimumScore: c.CVSSV2MinimumScore,
-		VulnIDRegexp:       expression,
-		LogFn:              domain.LoggerFromContext,
-		StatFn:             domain.StatFromContext,
+		CVSSV2MinimumScore:  c.CVSSV2MinimumScore,
+		VulnIDRegexp:        expression,
+		AllowAllLocalChecks: c.AllowAllLocalChecks,
+		LogFn:               domain.LoggerFromContext,
+		StatFn:              domain.StatFromContext,
 	}, nil
 }
 
 // VulnerabilityFilter implements the VulnerabilityFilter interface.
 type VulnerabilityFilter struct {
-	CVSSV2MinimumScore float64
-	VulnIDRegexp       *regexp.Regexp
-	LogFn              domain.LogFn
-	StatFn             domain.StatFn
+	CVSSV2MinimumScore  float64
+	VulnIDRegexp        *regexp.Regexp
+	AllowAllLocalChecks bool
+	LogFn               domain.LogFn
+	StatFn              domain.StatFn
 }
 
 // FilterVulnerabilities returns a filtered list of the filtered vulnerabilities
@@ -92,6 +96,15 @@ func (f VulnerabilityFilter) FilterVulnerabilities(ctx context.Context, asset do
 				Status:  vuln.Status,
 			})
 			stater.Count("event.nexposevulnerability.filter.discarded", 1, fmt.Sprintf("reason:%s", noResults))
+		case f.AllowAllLocalChecks == true && vuln.LocalCheck == true:
+			filteredVulnerabilities = append(filteredVulnerabilities, vuln)
+			logger.Info(logs.VulnerabilityFiltered{
+				Action:  logs.VulnDiscarded,
+				VulnID:  vuln.ID,
+				AssetID: asset.ID,
+				Status:  vuln.Status,
+			})
+			stater.Count("event.nexposevulnerability.filter.accepted", 1)
 		case vuln.CvssV2Score > f.CVSSV2MinimumScore:
 			filteredVulnerabilities = append(filteredVulnerabilities, vuln)
 			logger.Info(logs.VulnerabilityFiltered{
