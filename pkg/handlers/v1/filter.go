@@ -27,6 +27,7 @@ type AssetVulnerabilityDetails struct {
 	Description    string             `json:"description"`
 	Title          string             `json:"title"`
 	Solutions      []string           `json:"solutions"`
+	LocalCheck     bool               `json:"localCheck"`
 }
 
 // AssessmentResult contains port and protocol information for the vulnerability.
@@ -90,6 +91,7 @@ func vulnDetailsToVuln(vulnDetails []AssetVulnerabilityDetails) []domain.Vulnera
 			Description:    vulnDetail.Description,
 			Title:          vulnDetail.Title,
 			Solutions:      vulnDetail.Solutions,
+			LocalCheck:     vulnDetail.LocalCheck,
 		}
 	}
 	return vulns
@@ -111,6 +113,7 @@ func vulnToVulnDetails(vulns []domain.Vulnerability) []AssetVulnerabilityDetails
 			Description:    vuln.Description,
 			Title:          vuln.Title,
 			Solutions:      vuln.Solutions,
+			LocalCheck:     vuln.LocalCheck,
 		}
 	}
 	return vulnDetails

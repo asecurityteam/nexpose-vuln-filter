@@ -24,6 +24,7 @@ type Vulnerability struct {
 	Description    string
 	Title          string
 	Solutions      []string
+	LocalCheck     bool
 }
 
 // AssessmentResult contains port and protocol information for the Vulnerability.

@@ -38,6 +38,7 @@ func TestHandle(t *testing.T) {
 			ID:          "test",
 			CvssV2Score: 6.0,
 			Results:     make([]domain.AssessmentResult, 0),
+			LocalCheck:  false,
 		},
 	}
 
@@ -69,6 +70,7 @@ func TestHandleProducerError(t *testing.T) {
 			AssetVulnerabilityDetails{
 				ID:          "test",
 				CvssV2Score: 6.0,
+				LocalCheck:  true,
 			},
 		},
 	}
@@ -86,6 +88,7 @@ func TestHandleProducerError(t *testing.T) {
 			ID:          "test",
 			CvssV2Score: 6.0,
 			Results:     make([]domain.AssessmentResult, 0),
+			LocalCheck:  true,
 		},
 	}
 
@@ -122,14 +125,16 @@ func TestVulnDetailsToVuln(t *testing.T) {
 			"empty Results",
 			[]AssetVulnerabilityDetails{
 				AssetVulnerabilityDetails{
-					ID:      "foo",
-					Results: []AssessmentResult{},
+					ID:         "foo",
+					Results:    []AssessmentResult{},
+					LocalCheck: true,
 				},
 			},
 			[]domain.Vulnerability{
 				domain.Vulnerability{
-					ID:      "foo",
-					Results: make([]domain.AssessmentResult, 0),
+					ID:         "foo",
+					Results:    make([]domain.AssessmentResult, 0),
+					LocalCheck: true,
 				},
 			},
 		},
@@ -145,6 +150,7 @@ func TestVulnDetailsToVuln(t *testing.T) {
 							Proof:    "This is proof.",
 						},
 					},
+					LocalCheck: true,
 				},
 			},
 			[]domain.Vulnerability{
@@ -157,6 +163,7 @@ func TestVulnDetailsToVuln(t *testing.T) {
 							Proof:    "This is proof.",
 						},
 					},
+					LocalCheck: true,
 				},
 			},
 		},
@@ -208,6 +215,7 @@ func TestVulnToVulnDetails(t *testing.T) {
 							Proof:    "This is proof.",
 						},
 					},
+					LocalCheck: true,
 				},
 			},
 			[]AssetVulnerabilityDetails{
@@ -220,6 +228,7 @@ func TestVulnToVulnDetails(t *testing.T) {
 							Proof:    "This is proof.",
 						},
 					},
+					LocalCheck: true,
 				},
 			},
 		},
