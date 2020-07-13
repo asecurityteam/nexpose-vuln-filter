@@ -15,6 +15,7 @@ type NexposeAssetVulnerabilitiesEvent struct {
 	ID              int64                       `json:"id"`
 	IP              string                      `json:"ip"`
 	Vulnerabilities []AssetVulnerabilityDetails `json:"assetVulnerabilityDetails"`
+	ScanType        string                      `json:"scanType"`
 }
 
 // AssetVulnerabilityDetails contains the vulnerability information.
@@ -56,6 +57,7 @@ func (h FilterHandler) Handle(ctx context.Context, input NexposeAssetVulnerabili
 		IP:       input.IP,
 		Hostname: input.Hostname,
 		ScanTime: input.ScanTime,
+		ScanType: input.ScanType,
 	}
 	vulns := vulnDetailsToVuln(input.Vulnerabilities)
 	vulns = h.VulnerabilityFilter.FilterVulnerabilities(ctx, asset, vulns)
@@ -66,6 +68,7 @@ func (h FilterHandler) Handle(ctx context.Context, input NexposeAssetVulnerabili
 		Hostname:        input.Hostname,
 		ID:              input.ID,
 		IP:              input.IP,
+		ScanType:        input.ScanType,
 		Vulnerabilities: vulnDetails,
 	}
 	_, err := h.Producer.Produce(ctx, filteredAssetVulnEvent)
