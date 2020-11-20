@@ -120,6 +120,9 @@ components:
           type: string
           description: The type of scan done on the asset, remote or local.
           enum: [local, remote]
+        arn:
+          type: string
+          description: The ARN of an asset.
         assetVulnerabilityDetails:
           type: array
           description: List of vulnerabilities found on the asset.
@@ -150,6 +153,9 @@ components:
           type: string
           description: The type of scan done on the asset, remote or local.
           enum: [local, remote]
+        arn:
+          type: string
+          description: The ARN of an asset.
         assetVulnerabilityDetails:
           type: array
           description: List of vulnerabilities found on the asset.

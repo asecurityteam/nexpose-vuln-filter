@@ -12,6 +12,7 @@ type Asset struct {
 	ID       int64
 	IP       string
 	ScanType string
+	ARN      string
 }
 
 // Vulnerability contains the key fields from a Nexpose vulnerability associated with a
