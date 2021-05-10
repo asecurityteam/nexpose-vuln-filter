@@ -96,7 +96,7 @@ func (f VulnerabilityFilter) FilterVulnerabilities(ctx context.Context, asset do
 				Status:  vuln.Status,
 			})
 			stater.Count("event.nexposevulnerability.filter.discarded", 1, fmt.Sprintf("reason:%s", noResults))
-		case f.AllowAllLocalChecks == true && vuln.LocalCheck == true:
+		case f.AllowAllLocalChecks && vuln.LocalCheck:
 			filteredVulnerabilities = append(filteredVulnerabilities, vuln)
 			logger.Info(logs.VulnerabilityFiltered{
 				Action:  logs.VulnDiscarded,
